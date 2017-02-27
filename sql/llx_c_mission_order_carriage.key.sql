@@ -1,0 +1,1 @@
+ALTER TABLE llx_c_mission_order_carriage ADD UNIQUE INDEX uk_c_mission_order_carriage(code, entity);

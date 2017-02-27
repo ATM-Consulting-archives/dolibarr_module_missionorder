@@ -53,3 +53,27 @@ function missionorderAdminPrepareHead()
 
     return $head;
 }
+
+/**
+ * Return array of tabs to used on pages for third parties cards.
+ *
+ * @param 	Societe	$object		Object company shown
+ * @return 	array				Array of tabs
+ */
+function mission_order_prepare_head(TMissionOrder $object)
+{
+    global $db, $langs, $conf, $user;
+    $h = 0;
+    $head = array();
+
+    $head[$h][0] = dol_buildpath('/missionorder/card.php', 1).'id='.$object->getId();
+    $head[$h][1] = $langs->trans("Card");
+    $head[$h][2] = 'card';
+    $h++;
+	
+	// Show more tabs from modules
+    // Entries must be declared in modules descriptor with line
+    // $this->tabs = array('entity:+tabname:Title:@mymodule:/mymodule/mypage.php?id=__ID__');   to add new tab
+    // $this->tabs = array('entity:-tabname:Title:@mymodule:/mymodule/mypage.php?id=__ID__');   to remove a tab
+    complete_head_from_modules($conf,$langs,$object,$head,$h,'missionorder');
+}

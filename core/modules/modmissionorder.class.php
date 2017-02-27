@@ -160,6 +160,27 @@ class modmissionorder extends DolibarrModules
             'tabcond'=>array($conf->missionorder->enabled,$conf->missionorder->enabled,$conf->missionorder->enabled)												// Condition to show each dictionary
         );
         */
+		$this->dictionaries=array(
+            'langs'=>'missionorder@missionorder',
+            'tabname'=>array(
+				MAIN_DB_PREFIX.'c_mission_order_reason'
+				,MAIN_DB_PREFIX.'c_mission_order_carriage'
+			), // List of tables we want to see into dictonnary editor
+            'tablib'=>array(
+				'DictMissionOrderReason'
+				,'DictMissionOrderCarriage'
+			), // Label of tables
+            'tabsql'=>array(
+				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_mission_order_reason as f'
+				,'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_mission_order_carriage as f'
+			), // Request to select fields
+            'tabsqlsort'=>array('label ASC','label ASC'),						// Sort order
+            'tabfield'=>array('code,label','code,label'),						// List of fields (result of select to show dictionary)
+            'tabfieldvalue'=>array('code,label','code,label'),					// List of fields (list of fields to edit a record)
+            'tabfieldinsert'=>array('code,label','code,label'),					// List of fields (list of fields for insert)
+            'tabrowid'=>array('rowid','rowid'),									// Name of columns with primary key (try to always name it 'rowid')
+            'tabcond'=>array($conf->missionorder->enabled,$conf->missionorder->enabled) // Condition to show each dictionary
+        );
 
         // Boxes
 		// Add here list of php file(s) stored in core/boxes that contains class to show a box.
@@ -179,6 +200,20 @@ class modmissionorder extends DolibarrModules
 		// $this->rights[$r][4] = 'level1';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		// $this->rights[$r][5] = 'level2';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		// $r++;
+		
+		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
+		$this->rights[$r][1] = 'missionOrder_read';	// Permission label
+		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
+		$this->rights[$r][4] = 'read';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$r++;
+		
+		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
+		$this->rights[$r][1] = 'missionOrder_write';	// Permission label
+		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
+		$this->rights[$r][4] = 'write';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$r++;
 
 
 		// Main menu entries

@@ -5,3 +5,6 @@ ATMAbout = This module has been developed by <a href="http://www.atm-consulting.
 
 missionorderSetup = missionorder module setup
 missionorderAbout = About missionorder
+
+
+error_rowid_in_dict_not_found=(error: reference [%d] not found)
