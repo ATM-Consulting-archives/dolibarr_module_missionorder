@@ -58,7 +58,7 @@ class modmissionorder extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Description of module missionorder";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.0';
+		$this->version = '1.1';
 		// Key used in llx_const table to save module status enabled/disabled (where MYMODULE is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		// Where to store the module in setup page (0=common,1=interface,2=others,3=very specific)
@@ -253,6 +253,72 @@ class modmissionorder extends DolibarrModules
 		// $r++;
 
 
+		$this->menu[$r]=array(	
+			'fk_menu'=>'fk_mainmenu=missionorder',			                // Put 0 if this is a top menu
+			'type'=>'top',			                // This is a Top menu entry
+			'titre'=>$langs->trans('MenuMissionOrder'),
+			'mainmenu'=>'missionorder',
+			'leftmenu'=>'missionorderleft',
+			'url'=>'/missionorder/list.php',
+			'langs'=>'missionorder@missionorder',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>100,
+			'enabled'=>'$conf->missionorder->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
+			'perms'=>'$user->rights->missionorder->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2
+		);
+		$r++;
+		
+		$this->menu[$r]=array(
+			'fk_menu'=>'fk_mainmenu=missionorder,fk_leftmenu=missionorderleft',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>$langs->trans('LeftMenuMissionOrderCreate'),
+			'mainmenu'=>'missionorderleft',
+			'leftmenu'=>'',
+			'url'=>'/missionorder/card.php',
+			'langs'=>'missionorder@missionorder',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>101,
+			'enabled'=> '$conf->missionorder->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->rights->missionorder->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2
+		);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
+		
+		$this->menu[$r]=array(
+			'fk_menu'=>'fk_mainmenu=missionorder,fk_leftmenu=missionorderleft',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>$langs->trans('LeftMenuMissionOrderList'),
+			'mainmenu'=>'missionorderleft',
+			'leftmenu'=>'',
+			'url'=>'/missionorder/list.php',
+			'langs'=>'missionorder@missionorder',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>102,
+			'enabled'=> '$conf->missionorder->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->rights->missionorder->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2
+		);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
+		
+		
+		/* 
+		$this->menu[$r]=array(
+			'fk_menu'=>'fk_mainmenu=missionorder,fk_leftmenu=missionorder',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>$langs->trans('LeftMenuMissionOrderList'),
+			'mainmenu'=>'missionorder',
+			'leftmenu'=>'missionorder',
+			'url'=>'/missionorder/list.php',
+			'langs'=>'missionorder@missionorder',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>102,
+			'enabled'=>'$conf->missionorder->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=>'$user->rights->missionorder->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>2
+		);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;*/
+		
 		// Exports
 		$r=1;
 
