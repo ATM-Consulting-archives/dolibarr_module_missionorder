@@ -40,7 +40,9 @@ class TMissionOrder extends TObjetStd
 		$this->setChild('TMissionOrderReason','fk_mission_order');
 		$this->setChild('TMissionOrderCarriage','fk_mission_order');
 		
-		$this->ref = $langs->trans('Draft');
+		$this->date_start = null;
+		$this->date_end = null;
+		
 		$this->errors = array();
 	}
 	
@@ -61,21 +63,34 @@ class TMissionOrder extends TObjetStd
 		return $res;
 	}
 	
-	public function valid(&$PDOdb, &$user)
+	public function setValid(&$PDOdb, &$user)
 	{
-		if (empty($user->rights->missionorder->write)) return 0;
-		
-		require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
-		
-		if (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref))
-		{
-			$this->ref = $this->getNextNumero();
-		}
-		
+		$this->ref = $this->getNumero();
 		$this->date_valid = dol_now();
 		$this->status = self::STATUS_VALIDATED;
+		$this->fk_user_valid = $user->id;
+		
+		// TODO envoyer mail aux valideurs
 		
 		return parent::save($PDOdb);
+	}
+	
+	public function setDraft(&$PDOdb)
+	{
+		$this->status = self::STATUS_DRAFT;
+		$this->withChild = false;
+		
+		return parent::save($PDOdb);
+	}
+	
+	public function getNumero()
+	{
+		if (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref))
+		{
+			return $this->getNextNumero();
+		}
+		
+		return $this->ref;
 	}
 	
 	private function getNextNumero()
@@ -89,13 +104,101 @@ class TMissionOrder extends TObjetStd
 				
 		return $numero;
 	}
-
-
-	// TODO finir l'écriture de la méthode getNomUrl()
-	public static function getNomUrl($id, $withpicto=0)
+	
+	public function setChildren(&$PDOdb, &$TabId, $child_name, $fk_foreign_key, $attr_fk_object)
 	{
+		foreach ($this->{$child_name} as &$child)
+		{
+			$child->to_delete = true;
+			$child_id = $child->getId();
+			
+			if (!empty($TabId[$child_id]))
+			{
+				$child->to_delete = false; // Finalement il est présent dans le tableau de valeur, du coup je le delete pas
+				unset($TabId[$child_id]); // unset car déjà existant comme enfant, donc pas besoin de le add via le traitement suivant
+			}
+		}
 		
-		return 'test '.$id;
+		if (!empty($TabId))
+		{
+			foreach ($TabId as $fk_object)
+			{
+				$k = $this->addChild($PDOdb, $child_name);
+				$this->{$child_name}[$k]->{$attr_fk_object} = $fk_object;
+			}
+		}
+	}
+
+	public function setUsers(&$PDOdb, &$TUserId)
+	{
+		$this->setChildren($PDOdb, $TUserId, 'TMissionOrderUser', 'fk_mission_order', 'fk_user');
+	}
+	
+	public function setReasons(&$PDOdb, &$TReasonId)
+	{
+		$this->setChildren($PDOdb, $TReasonId, 'TMissionOrderReason', 'fk_mission_order', 'fk_c_mission_order_reason');
+	}
+	
+	public function setCarriages(&$PDOdb, &$TCarriageId)
+	{
+		$this->setChildren($PDOdb, $TCarriageId, 'TMissionOrderCarriage', 'fk_mission_order', 'fk_c_mission_order_carriage');
+	}
+
+	
+	public function getNomUrl($withpicto=0, $get_params='')
+	{
+		global $langs;
+
+        $result='';
+        $label = '<u>' . $langs->trans("ShowMissionOrder") . '</u>';
+        if (! empty($this->ref)) $label.= '<br><b>'.$langs->trans('Ref').':</b> '.$this->ref;
+        
+        $linkclose = '" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
+        $link = '<a href="'.dol_buildpath('/missionorder/card.php', 1).'?id='.$this->getId(). $get_params .$linkclose;
+       
+        $linkend='</a>';
+
+        $picto='generic';
+		
+        if ($withpicto)
+            $result.=($link.img_object($label, $picto, 'class="classfortooltip"').$linkend);
+        if ($withpicto && $withpicto != 2)
+            $result.=' ';
+        $result.=$link.$this->ref.$linkend;
+		
+        return $result;
+	}
+	
+	public static function getStaticNomUrl($id, $withpicto=0)
+	{
+		global $PDOdb;
+		
+		if (empty($PDOdb)) $PDOdb = new TPDOdb;
+		
+		$object = new TMissionOrder;
+		$object->load($PDOdb, $id, false);
+		
+		return $object->getNomUrl($withpicto);
+	}
+	
+	public function getLibStatut($mode=0)
+    {
+        return $this->LibStatut($this->status, $mode);
+    }
+	
+	public function LibStatut($status, $mode)
+	{
+		global $langs;
+		$langs->load("missionorder@missionorder");
+
+		if ($status==self::STATUS_DRAFT) { $statustrans='statut0'; $keytrans='MissionOrderStatusDraft'; }
+		if ($status==self::STATUS_VALIDATED) { $statustrans='statut1'; $keytrans='MissionOrderStatusValidated'; }
+		if ($status==self::STATUS_REFUSED) { $statustrans='statut5'; $keytrans='MissionOrderStatusRefused'; }
+		if ($status==self::STATUS_ACCEPTED) { $statustrans='statut6'; $keytrans='MissionOrderStatusAccepted'; }
+
+		
+		if ($mode == 0) return img_picto($langs->trans('title'), $statustrans);
+		else return img_picto($langs->trans('title'), $statustrans).' '.$langs->trans($keytrans);
 	}
 }
 
@@ -106,7 +209,6 @@ class TMissionOrderUser extends TObjetStd
 		$this->set_table(MAIN_DB_PREFIX.'mission_order_user');
 		
 		$this->add_champs('fk_mission_order,fk_user', array('type' => 'integer', 'index' => true));
-		
 		
 		$this->_init_vars();
 		$this->start();

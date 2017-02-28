@@ -275,7 +275,7 @@ class modmissionorder extends DolibarrModules
 			'titre'=>$langs->trans('LeftMenuMissionOrderCreate'),
 			'mainmenu'=>'missionorderleft',
 			'leftmenu'=>'',
-			'url'=>'/missionorder/card.php',
+			'url'=>'/missionorder/card.php?action=create',
 			'langs'=>'missionorder@missionorder',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>101,
 			'enabled'=> '$conf->missionorder->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.

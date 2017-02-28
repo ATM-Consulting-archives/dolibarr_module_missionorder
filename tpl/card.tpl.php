@@ -1,68 +1,97 @@
-<input type="hidden" name="action" value="[view.action]" />
-<table width="100%" class="border">
-	<tbody>
-		<tr class="ref">
-			<td>[langs.trans(Ref)]</td>
-			<td>[missionorder.ref]</td>
-		</tr>
-		
-		<tr class="label">
-			<td>[langs.trans(Label)]</td>
-			<td>[missionorder.label]</td>
-		</tr>
-		
-		<tr class="project">
-			<td>[langs.trans(ProjectLinked)]</td>
-			<td>[formproject->select_projects(-1, [missionorder.fk_project])]</td>
-		</tr>
-		
-		<tr class="users">
-			<td>[langs.trans(UsersLinked)]</td>
-			<td>[view.multiselectUser]</td>
-		</tr>
-		
-		<tr class="location">
-			<td>[langs.trans(Location)]</td>
-			<td>[missionorder.location]</td>
-		</tr>
-		
-		<tr class="date_start">
-			<td class="fieldrequired">[langs.trans(DateStart)]</td>
-			<td>[form.select_date([missionorder.date_start], 're', 1, 1)]</td>
-		</tr>
-		
-		<tr class="date_end">
-			<td class="fieldrequired">[langs.trans(DateEnd)]</td>
-			<td>[form.select_date([missionorder.date_end], 're', 1, 1)]</td>
-		</tr>
-		
-		<tr class="reason">
-			<td>[langs.trans(Reason)]</td>
-			<td>[view.showReason]</td>
-		</tr>
-		
-		<tr class="carriage">
-			<td>[langs.trans(Carriage)]</td>
-			<td>[view.showCarriage]</td>
-		</tr>
-		
-		<tr class="note">
-			<td>[langs.trans(Note)]</td>
-			<td>[missionorder.note]</td>
-		</tr>
-	</tbody>
-</table>
+<!-- Un début de <div> existe de par la fonction dol_fiche_head() -->
+	<input type="hidden" name="action" value="[view.action]" />
+	<table width="100%" class="border">
+		<tbody>
+			<tr class="ref">
+				<td width="25%">[langs.transnoentities(Ref)]</td>
+				<td>[view.showRef]</td>
+			</tr>
+
+			<tr class="label">
+				<td width="25%">[langs.transnoentities(Label)]</td>
+				<td>[view.showLabel;strconv=no]</td>
+			</tr>
+
+			<tr class="status">
+				<td width="25%">[langs.transnoentities(Status)]</td>
+				<td>[missionorder.getLibStatut(1);strconv=no]</td>
+			</tr>
+
+			<tr class="project">
+				<td width="25%">[langs.transnoentities(ProjectLinked)]</td>
+				<td>[view.showProject;strconv=no]</td>
+			</tr>
+
+			<tr class="users">
+				<td width="25%">[langs.transnoentities(UsersLinked)]</td>
+				<td>[view.showUsers;strconv=no]</td>
+			</tr>
+
+			<tr class="location">
+				<td width="25%">[langs.transnoentities(Location)]</td>
+				<td>[view.showLocation;strconv=no]</td>
+			</tr>
+
+			<tr class="date_start">
+				<td width="25%" class="fieldrequired">[langs.transnoentities(DateStart)]</td>
+				<td>[view.showDateStart;strconv=no]</td>
+			</tr>
+
+			<tr class="date_end">
+				<td width="25%" class="fieldrequired">[langs.transnoentities(DateEnd)]</td>
+				<td>[view.showDateEnd;strconv=no]</td>
+			</tr>
+
+			<tr class="reason">
+				<td width="25%">[langs.transnoentities(Reason)]</td>
+				<td>[view.showReason;strconv=no]</td>
+			</tr>
+
+			<tr class="carriage">
+				<td width="25%">[langs.transnoentities(Carriage)]</td>
+				<td>[view.showCarriage;strconv=no]</td>
+			</tr>
+
+			<tr class="note">
+				<td width="25%">[langs.transnoentities(Note)]</td>
+				<td>[view.showNote;strconv=no]</td>
+			</tr>
+		</tbody>
+	</table>
+
+</div> <!-- Fin div de la fonction dol_fiche_head() -->
 
 [onshow;block=begin;when [view.mode]='edit']
 <div class="center">
-	[onshow;block=begin;when [missionorder.id]>0]
-	<input type='hidden' name='id' value='[missionorder.id]' />
-	<input type="submit" value="[langs.trans(Save)]" class="button" />
-	[onshow;block=end]
-	[onshow;block=begin;when [missionorder.id]=0]
-	<input type="submit" value="[langs.trans(CreateDraft)]" class="button" />
+	
+	<!-- '+-' est l'équivalent d'un signe '>' (TBS oblige) -->
+	[onshow;block=begin;when [missionorder.getId()]+-0]
+	<input type='hidden' name='id' value='[missionorder.getId()]' />
+	<input type="submit" value="[langs.transnoentities(Save)]" class="button" />
 	[onshow;block=end]
 	
-	<input type="button" onclick="javascript:history.go(-1)" value="[langs.trans(Cancel)]" class="button">
+	[onshow;block=begin;when [missionorder.getId()]=0]
+	<input type="submit" value="[langs.transnoentities(CreateDraft)]" class="button" />
+	[onshow;block=end]
+	
+	<input type="button" onclick="javascript:history.go(-1)" value="[langs.transnoentities(Cancel)]" class="button">
+</div>
+[onshow;block=end]
+
+[onshow;block=begin;when [view.mode]!='edit']
+<div class="tabsAction">
+	[onshow;block=begin;when [user.rights.missionorder.write]!='edit']
+	
+		[onshow;block=begin;when [missionorder.status]=0]
+		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=validate" class="butAction">[langs.transnoentities(Validate)]</a></div>
+		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=edit" class="butAction">[langs.transnoentities(Modify)]</a></div>
+		[onshow;block=end]
+		
+		[onshow;block=begin;when [missionorder.status]!=0]
+		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=modif" class="butAction">[langs.transnoentities(Reopen)]</a></div>
+		[onshow;block=end]
+		
+		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=delete" class="butActionDelete">[langs.transnoentities(Delete)]</a></div>
+	[onshow;block=end]
 </div>
 [onshow;block=end]

@@ -73,7 +73,7 @@ function _list()
 			'ref' => $langs->trans('Ref')
 		)
 		,'eval'=>array(
-			'ref'=>'TMissionOrder::getNomUrl(@rowid@, 1)'
+			'ref'=>'TMissionOrder::getStaticNomUrl(@rowid@, 1)'
 		)
 	));
 	
