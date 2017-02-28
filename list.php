@@ -40,10 +40,10 @@ function _list()
 	$PDOdb = new TPDOdb;
 	$formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_mission_order', 'GET');
 	
-	
 	$nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
 	
-	$r->liste($ATMdb, $sql, array(
+	$r = new TSSRenderControler($missionorder);
+	$r->liste($PDOdb, $sql, array(
 		'limit'=>array(
 			'nbLine' => $nbLine
 		)
@@ -75,10 +75,7 @@ function _list()
 		,'eval'=>array(
 			'ref'=>'TMissionOrder::getNomUrl(@rowid@, 1)'
 		)
-		));
-
-		$form->end();
-	
+	));
 	
 	llxFooter('');
 }
