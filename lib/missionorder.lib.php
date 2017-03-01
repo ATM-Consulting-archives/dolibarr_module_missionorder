@@ -137,7 +137,7 @@ function getUsersView(&$TMissionOrderUser, &$form, $mode='view')
 			$u = new User($db);
 			if ($u->fetch($missionOrderUser->fk_user) > 0)
 			{
-				$res .= $u->getNomUrl(1).'&nbsp;';
+				$res .= $u->getNomUrl(1, '', 0, 0, 24, 1).'&nbsp;';
 			}
 			else
 			{

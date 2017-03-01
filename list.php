@@ -6,6 +6,7 @@ dol_include_once('/missionorder/class/missionorder.class.php');
 if(empty($user->rights->missionorder->read)) accessforbidden();
 
 $langs->load('missionorder@missionorder');
+$langs->load('abricot@abricot');
 
 
 $hookmanager->initHooks(array('missionorderlist'));
@@ -31,8 +32,11 @@ function _list()
 	llxHeader('',$langs->trans('listMissionOrder'),'','');
 	
 	// TODO ajouter les colonnes manquantes ET une colonne action pour la notion de validation rapide
-	$sql = 'SELECT mo.rowid, mo.ref, mo.label, mo.location, mo.fk_project, mo.date_start, mo.date_end, mo.date_refuse, mo.date_accept, mo.status
+	$sql = 'SELECT mo.rowid, mo.ref, mo.label, mo.location, mo.fk_project, mo.date_start, mo.date_end, mo.date_refuse, mo.date_accept, mo.status, GROUP_CONCAT(mou.fk_user SEPARATOR \',\') as TUserId
 			FROM '.MAIN_DB_PREFIX.'mission_order mo
+			LEFT JOIN '.MAIN_DB_PREFIX.'projet p ON (p.rowid = mo.fk_project)
+			LEFT JOIN '.MAIN_DB_PREFIX.'mission_order_user mou ON (mou.fk_mission_order = mo.rowid)
+			GROUP BY mo.rowid
 	';
 	
 	$missionorder = new TMissionOrder;
@@ -49,17 +53,27 @@ function _list()
 		)
 		,'subQuery' => array()
 		,'link' => array()
+		,'type' => array(
+			'date_start' => 'date'
+			,'date_end' => 'date'
+			,'date_refuse' => 'date'
+			,'date_accept' => 'date'
+		)
 		,'search' => array(
 			'ref' => array('recherche' => true)
-			,'status' => array(
-				$missionorder::STATUS_DRAFT => $langs->trans('Draft')
-				,$missionorder::STATUS_VALIDATED => $langs->trans('Validate')
-				,$missionorder::STATUS_REFUSED => $langs->trans('Refuse')
-				,$missionorder::STATUS_ACCEPTED => $langs->trans('Accept')
-			)
+			,'label' => array('recherche' => true)
+			,'location' => array('recherche' => true)
+			,'fk_project' => array('recherche' => true, 'table' => array('p', 'p'), 'field' => array('ref','title'))
+			,'date_start' => array('recherche' => 'calendars', 'allow_is_null' => true)
+			,'date_end' => array('recherche' => 'calendars', 'allow_is_null' => true)
+			,'date_refuse' => array('recherche' => 'calendars', 'allow_is_null' => true)
+			,'date_accept' => array('recherche' => 'calendars', 'allow_is_null' => true)
+			,'status' => array('recherche' => TMissionOrder::$TStatus, 'to_translate' => true)
 		)
 		,'translate' => array()
-		,'hide' => array()
+		,'hide' => array(
+			'rowid'
+		)
 		,'liste' => array(
 			'titre' => $langs->trans('ListMissionOrder')
 			,'image' => img_picto('','title.png', '', 0)
@@ -79,11 +93,64 @@ function _list()
 			,'date_refuse' => $langs->trans('DateRefused')
 			,'date_accept' => $langs->trans('DateAccepted')
 			,'status' => $langs->trans('Status')
+			,'TUserId' => $langs->trans('UsersLinked')
 		)
 		,'eval'=>array(
-			'ref'=>'TMissionOrder::getStaticNomUrl(@rowid@, 1)'
+			'ref' => 'TMissionOrder::getStaticNomUrl(@rowid@, 1)'
+			,'fk_project' => 'getProjectNomUrl(@val@)'
+			,'date_start' => 'formatDate("@val@")'
+			,'date_end' => 'formatDate("@val@")'
+			,'date_refuse' => 'formatDate("@val@")'
+			,'date_accept' => 'formatDate("@val@")'
+			,'status' => 'TMissionOrder::LibStatut(@val@, 4)'
+			,'TUserId' => 'getUsersLink("@val@")'
 		)
 	));
 	
 	llxFooter('');
+}
+
+function getProjectNomUrl($fk_project)
+{
+	global $db;
+	
+	$project = new Project($db);
+	$project->fetch($fk_project);
+	
+	return $project->getNomUrl(1, '', 1);
+}
+
+function formatDate($date)
+{
+	global $db;
+	
+	if (empty($date)) return '';
+	
+	// Besoin du $db->jdate pour éviter un décalage de 1 heure
+	return dol_print_date($db->jdate($date), 'dayhour');
+}
+
+function getUsersLink($fk_user_string)
+{
+	global $db,$TUserLink;
+	
+	if (empty($TUserLink)) $TUserLink = array();
+	$Tab = explode(',', $fk_user_string);
+	
+	$res = '';
+	foreach ($Tab as $fk_user)
+	{
+		if (!empty($TUserLink[$fk_user])) $u = &$TUserLink[$fk_user];
+		else
+		{
+			$u = new User($db);
+			$u->fetch($fk_user);
+			$TUserLink[$fk_user] = $u;
+		}
+		
+		if ($u->id > 0) $res .= $u->getNomUrl(1, '', 0, 0, 24, 1).'&nbsp;';
+		else $res .= '[IdNotFound:'.$fk_user.']';
+	}
+	
+	return $res;
 }

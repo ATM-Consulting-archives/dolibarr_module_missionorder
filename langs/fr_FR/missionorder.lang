@@ -17,7 +17,7 @@ LeftMenuMissionOrderList=Liste
 # LISTE
 DateRefused=Date refus
 DateAccepted=Date acceptation
-
+SearchOnNUllValue
 # LINK
 ShowMissionOrder=Afficher mission
 

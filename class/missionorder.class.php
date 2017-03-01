@@ -19,6 +19,14 @@ class TMissionOrder extends TObjetStd
 	 */
 	const STATUS_ACCEPTED = 3;
 	
+	public static $TStatus = array(
+		self::STATUS_DRAFT => 'Draft'
+		,self::STATUS_VALIDATED => 'Validate'
+		,self::STATUS_REFUSED => 'Refuse'
+		,self::STATUS_ACCEPTED => 'Accept'
+	);
+
+
 	public function __construct()
 	{
 		global $conf,$langs;
@@ -147,7 +155,6 @@ class TMissionOrder extends TObjetStd
 		
 	}
 
-
 	public function setValid(&$PDOdb, &$user)
 	{
 		$this->ref = $this->getNumero();
@@ -274,22 +281,25 @@ class TMissionOrder extends TObjetStd
 	
 	public function getLibStatut($mode=0)
     {
-        return $this->LibStatut($this->status, $mode);
+        return self::LibStatut($this->status, $mode);
     }
 	
-	public function LibStatut($status, $mode)
+	public static function LibStatut($status, $mode)
 	{
 		global $langs;
 		$langs->load("missionorder@missionorder");
 
-		if ($status==self::STATUS_DRAFT) { $statustrans='statut0'; $keytrans='MissionOrderStatusDraft'; }
-		if ($status==self::STATUS_VALIDATED) { $statustrans='statut1'; $keytrans='MissionOrderStatusValidated'; }
-		if ($status==self::STATUS_REFUSED) { $statustrans='statut5'; $keytrans='MissionOrderStatusRefused'; }
-		if ($status==self::STATUS_ACCEPTED) { $statustrans='statut6'; $keytrans='MissionOrderStatusAccepted'; }
+		if ($status==self::STATUS_DRAFT) { $statustrans='statut0'; $keytrans='MissionOrderStatusDraft'; $shortkeytrans='Draft'; }
+		if ($status==self::STATUS_VALIDATED) { $statustrans='statut1'; $keytrans='MissionOrderStatusValidated'; $shortkeytrans='Validate'; }
+		if ($status==self::STATUS_REFUSED) { $statustrans='statut5'; $keytrans='MissionOrderStatusRefused'; $shortkeytrans='Refused'; }
+		if ($status==self::STATUS_ACCEPTED) { $statustrans='statut6'; $keytrans='MissionOrderStatusAccepted'; $shortkeytrans='Accepted'; }
 
 		
-		if ($mode == 0) return img_picto($langs->trans('title'), $statustrans);
-		else return img_picto($langs->trans('title'), $statustrans).' '.$langs->trans($keytrans);
+		if ($mode == 0) return img_picto($langs->trans($keytrans), $statustrans);
+		elseif ($mode == 1) return img_picto($langs->trans($keytrans), $statustrans).' '.$langs->trans($keytrans);
+		elseif ($mode == 2) return $langs->trans($keytrans).' '.img_picto($langs->trans($keytrans), $statustrans);
+		elseif ($mode == 3) return img_picto($langs->trans($keytrans), $statustrans).' '.$langs->trans($shortkeytrans);
+		elseif ($mode == 4) return $langs->trans($shortkeytrans).' '.img_picto($langs->trans($keytrans), $statustrans);
 	}
 }
 
