@@ -36,9 +36,6 @@ if (empty($reshook))
 		case 'save':
 			$PDOdb->beginTransaction();
 			
-			if (!empty($id)) $missionorder->load($PDOdb, $id);
-			else $missionorder->fk_user_author = $user->id;
-			
 			$missionorder->set_values($_REQUEST); // Set standard attributes
 			
 			$missionorder->date_start = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
@@ -94,6 +91,12 @@ if (empty($reshook))
 			header('Location: '.dol_buildpath('/missionorder/card.php', 1).'?id='.$missionorder->getId());
 			exit;
 			
+			break;
+		case 'confirm_clone':
+			$missionorder->cloneObject($PDOdb);
+			
+			header('Location: '.dol_buildpath('/missionorder/card.php', 1).'?id='.$missionorder->getId());
+			exit;
 			break;
 		case 'modif':
 			if (!empty($user->rights->missionorder->write)) $missionorder->setDraft($PDOdb);
@@ -161,6 +164,13 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 		
 		print $formconfirm;
 	}
+	elseif ($action == 'clone' && !empty($user->rights->missionorder->write))
+	{
+		$text = $langs->trans('ConfirmCloneMissionOrder');
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('CloneMissionOrder'), $text, 'confirm_clone', '', 0, 1);
+		
+		print $formconfirm;
+	}
 	
 	
 	$htmlProject = getProjectView($mode, $missionorder->fk_project);
@@ -205,7 +215,16 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 		)
 	);
 	
-	if ($mode == 'edit') echo $formcore->end_form();	
+	if ($mode == 'edit') echo $formcore->end_form();
 	
+//	var_dump('sdg', count($missionorder->generic->linkedObjects));
+	// Show NDFP link // TODO vérifier si un trigger existe sur le delete d'une NDFP
+	$somethingshown = $form->showLinkedObjectBlock($missionorder->generic);
+	
+//	global $hookmanager;
+//	$hookmanager->initHooks(array('commonobject'));
+//	$parameters=array();
+//	$reshook=$hookmanager->executeHooks('showLinkedObjectBlock',$parameters,$missionorder->generic,$action); 
+		
 	llxFooter();
 }

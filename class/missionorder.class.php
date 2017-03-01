@@ -42,20 +42,38 @@ class TMissionOrder extends TObjetStd
 		
 		$this->date_start = null;
 		$this->date_end = null;
+		$this->project = null;
+		$this->generic = null;
+		$this->initDefaultvalue();
+		
 		$this->entity = $conf->entity;
 		
 		$this->errors = array();
 	}
 	
+	private function initDefaultvalue()
+	{
+		$this->status = self::STATUS_DRAFT;
+		$this->fk_user_valid = 0;
+		
+		$this->date_valid = null;
+		$this->date_refuse = null;
+		$this->date_accept = null;
+	}
+
 	public function save(&$PDOdb, $addprov=false)
 	{
+		global $user;
+		
+		if (!$this->getId()) $this->fk_user_author = $user->id;
+		
 		$res = parent::save($PDOdb);
 		
-		// TODO check link element_element avec le fk_project
-		
-		if ($addprov)
+		if ($addprov || !empty($this->is_clone))
 		{
 			$this->ref = '(PROV'.$this->getId().')';
+			
+			if (!empty($this->is_clone)) $this->initDefaultvalue();
 			
 			$wc = $this->withChild;
 			$this->withChild = false;
@@ -66,6 +84,70 @@ class TMissionOrder extends TObjetStd
 		return $res;
 	}
 	
+	public function load(&$PDOdb, $id, $loadChild = true)
+	{
+		global $db;
+		
+		$res = parent::load($PDOdb, $id, $loadChild);
+		
+		if (!empty($this->fk_project))
+		{
+			require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
+			
+			$this->project = new Project($db);
+			$this->project->fetch($this->fk_project);
+		}
+		
+		if ($loadChild) $this->fetchObjectLinked();
+		
+		return $res;
+	}
+	
+	/**
+	 * Fetch NDFP linked
+	 */
+	public function fetchObjectLinked()
+	{
+		global $db;
+		
+		if (!class_exists('GenericObject')) require_once DOL_DOCUMENT_ROOT.'/core/class/genericobject.class.php';
+		
+		$generic = new GenericObject($db);
+		$generic->fetchObjectLinked($this->getId(), get_class($this));
+		
+		/*if (!empty($generic->linkedObjectsIds['project']) && empty($generic->linkedObjects['project']))
+		{
+			foreach ($generic->linkedObjectsIds['project'] as $fk_element_element => $fk_project)
+			{
+				$generic->linkedObjects['project'][$fk_element_element] = new Project($db);
+				$generic->linkedObjects['project'][$fk_element_element]->fetch($fk_project);
+			}
+		}*/
+		
+		$this->generic = &$generic;
+	}
+	
+	public function setNdfLink(&$ndfp)
+	{
+		global $db;
+		
+		if ($ndfp->getId())
+		{
+			//if (!empty($this->project)) $this->project->deleteObjectLinked($this->getId(), 'TMissionOrder');
+
+			// TODO insert into llx_element_element 
+			// fk_source = $this->getId()
+			// sourcetype = get_class($this)
+			// fk_target = $ndfp->getId()
+			// targettype = get_class($ndfp)
+			
+		}
+
+		
+		
+	}
+
+
 	public function setValid(&$PDOdb, &$user)
 	{
 		$this->ref = $this->getNumero();
