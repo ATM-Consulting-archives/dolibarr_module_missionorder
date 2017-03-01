@@ -18,12 +18,12 @@
 			</tr>
 
 			<tr class="project">
-				<td width="25%">[langs.transnoentities(ProjectLinked)]</td>
+				<td width="25%" class="fieldrequired">[langs.transnoentities(ProjectLinked)]</td>
 				<td>[view.showProject;strconv=no]</td>
 			</tr>
 
 			<tr class="users">
-				<td width="25%">[langs.transnoentities(UsersLinked)]</td>
+				<td width="25%" class="fieldrequired">[langs.transnoentities(UsersLinked)]</td>
 				<td>[view.showUsers;strconv=no]</td>
 			</tr>
 

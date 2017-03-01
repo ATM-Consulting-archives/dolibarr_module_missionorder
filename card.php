@@ -41,16 +41,10 @@ if (empty($reshook))
 			
 			$missionorder->set_values($_REQUEST); // Set standard attributes
 			
-			$TUserId = array();
-			$TUserIdTmp = GETPOST('TUser', 'array');
-			foreach ($TUserIdTmp as $fk_user) $TUserId[$fk_user] = $fk_user;
-			unset($TUserIdTmp);
-			
-			$missionorder->setUsers($PDOdb, $TUserId);
-			
 			$missionorder->date_start = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
 			$missionorder->date_end = dol_mktime(GETPOST('endhour'), GETPOST('endmin'), 0, GETPOST('endmonth'), GETPOST('endday'), GETPOST('endyear'));
 			
+			// Check parameters
 			if (empty($missionorder->date_start) || empty($missionorder->date_end))
 			{
 				$error++;
@@ -62,6 +56,19 @@ if (empty($reshook))
 				setEventMessages($langs->trans('warning_date_start_must_be_inferior_as_date_end'), array(), 'warnings');
 			}
 			
+			$TUserIdTmp = GETPOST('TUser', 'array');
+			if (empty($TUserIdTmp))
+			{
+				$error++;
+				setEventMessages($langs->trans('warning_no_user_linked'), array(), 'warnings');
+			}
+			
+			if (empty($missionorder->fk_project))
+			{
+				$error++;
+				setEventMessages($langs->trans('warning_no_project_selected'), array(), 'warnings');
+			}
+			
 			if ($error)
 			{
 				$PDOdb->rollback();
@@ -69,13 +76,18 @@ if (empty($reshook))
 				break;
 			}
 			
+			$TUserId = array();
+			foreach ($TUserIdTmp as $fk_user) $TUserId[$fk_user] = $fk_user;
+			unset($TUserIdTmp);
+			$missionorder->setUsers($PDOdb, $TUserId);
+			
 			$TReasonId = GETPOST('TMissionOrderReason', 'array');
 			$missionorder->setReasons($PDOdb, $TReasonId);
 			
 			$TCarriageId = GETPOST('TMissionOrderCarriage', 'array');
 			$missionorder->setCarriages($PDOdb, $TCarriageId);
 			
-			$missionorder->save($PDOdb);
+			$missionorder->save($PDOdb, empty($missionorder->ref));
 			
 			$PDOdb->commit();
 			

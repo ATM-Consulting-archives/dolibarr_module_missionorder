@@ -21,7 +21,7 @@ class TMissionOrder extends TObjetStd
 	
 	public function __construct()
 	{
-		global $langs;
+		global $conf,$langs;
 		
 		$this->set_table(MAIN_DB_PREFIX.'mission_order');
 		
@@ -42,6 +42,7 @@ class TMissionOrder extends TObjetStd
 		
 		$this->date_start = null;
 		$this->date_end = null;
+		$this->entity = $conf->entity;
 		
 		$this->errors = array();
 	}
@@ -49,6 +50,8 @@ class TMissionOrder extends TObjetStd
 	public function save(&$PDOdb, $addprov=false)
 	{
 		$res = parent::save($PDOdb);
+		
+		// TODO check link element_element avec le fk_project
 		
 		if ($addprov)
 		{
@@ -66,6 +69,7 @@ class TMissionOrder extends TObjetStd
 	public function setValid(&$PDOdb, &$user)
 	{
 		$this->ref = $this->getNumero();
+		
 		$this->date_valid = dol_now();
 		$this->status = self::STATUS_VALIDATED;
 		$this->fk_user_valid = $user->id;
@@ -99,9 +103,9 @@ class TMissionOrder extends TObjetStd
 		
 		require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
 		
-		$mask = !empty($conf->global->MISSION_ORDER_REF_MASK) ? $conf->global->MISSION_ORDER_REF_MASK : 'OM{00000}';
+		$mask = !empty($conf->global->MISSION_ORDER_REF_MASK) ? $conf->global->MISSION_ORDER_REF_MASK : 'OM{yy}{mm}-{0000}';
 		$numero = get_next_value($db, $mask, 'mission_order', 'ref');
-				
+		
 		return $numero;
 	}
 	
