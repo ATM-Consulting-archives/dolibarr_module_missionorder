@@ -71,6 +71,14 @@ function _list()
 		)
 		,'title'=>array(
 			'ref' => $langs->trans('Ref')
+			,'label' => $langs->trans('Label')
+			,'location' => $langs->trans('Location')
+			,'fk_project' => $langs->trans('Project')
+			,'date_start' => $langs->trans('DateStart')
+			,'date_end' => $langs->trans('DateEnd')
+			,'date_refuse' => $langs->trans('DateRefused')
+			,'date_accept' => $langs->trans('DateAccepted')
+			,'status' => $langs->trans('Status')
 		)
 		,'eval'=>array(
 			'ref'=>'TMissionOrder::getStaticNomUrl(@rowid@, 1)'

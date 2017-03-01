@@ -87,11 +87,11 @@
 		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=edit" class="butAction">[langs.transnoentities(Modify)]</a></div>
 		[onshow;block=end]
 		
-		[onshow;block=begin;when [missionorder.status]!=0]
+		[onshow;block=begin;when [missionorder.status]=1]
 		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=modif" class="butAction">[langs.transnoentities(Reopen)]</a></div>
 		[onshow;block=end]
 		
-		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=clone" class="butAction">[langs.transnoentities(Clone)]</a></div>
+		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=clone" class="butAction">[langs.transnoentities(ToClone)]</a></div>
 		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=delete" class="butActionDelete">[langs.transnoentities(Delete)]</a></div>
 		
 	[onshow;block=end]

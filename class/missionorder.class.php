@@ -163,10 +163,15 @@ class TMissionOrder extends TObjetStd
 	
 	public function setDraft(&$PDOdb)
 	{
-		$this->status = self::STATUS_DRAFT;
-		$this->withChild = false;
+		if ($this->status == self::STATUS_VALIDATED)
+		{
+			$this->status = self::STATUS_DRAFT;
+			$this->withChild = false;
+			
+			return parent::save($PDOdb);
+		}
 		
-		return parent::save($PDOdb);
+		return 0;
 	}
 	
 	public function getNumero()

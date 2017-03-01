@@ -166,7 +166,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	}
 	elseif ($action == 'clone' && !empty($user->rights->missionorder->write))
 	{
-		$text = $langs->trans('ConfirmCloneMissionOrder');
+		$text = $langs->trans('ConfirmCloneMissionOrder', $missionorder->getNumero());
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('CloneMissionOrder'), $text, 'confirm_clone', '', 0, 1);
 		
 		print $formconfirm;
