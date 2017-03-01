@@ -13,7 +13,9 @@ $langs->load('missionorder@missionorder');
 
 $action = GETPOST('action');
 $id = GETPOST('id', 'int');
+$ref = GETPOST('ref');
 $mode = GETPOST('mode');
+
 if (empty($mode)) $mode = 'view';
 if ($action == 'create' || $action == 'edit') $mode = 'edit';
 
@@ -21,10 +23,11 @@ $PDOdb = new TPDOdb;
 $missionorder = new TMissionOrder;
 
 if (!empty($id)) $missionorder->load($PDOdb, $id);
+elseif (!empty($ref)) $missionorder->loadBy($PDOdb, $ref, 'ref');
 
 $hookmanager->initHooks(array('missionordercard', 'globalcard'));
 
-$parameters = array('id' => $id, 'mode' => $mode);
+$parameters = array('id' => $id, 'ref' => $ref, 'mode' => $mode);
 $reshook = $hookmanager->executeHooks('doActions', $parameters, $missionorder, $action); // Note that $action and $object may have been modified by some
 if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
@@ -152,7 +155,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	if ($action == 'validate' && !empty($user->rights->missionorder->write))
 	{
-		$text = $langs->trans('ConfirmValidateMissionOrder', $missionorder->getNumero());
+		$text = $langs->trans('ConfirmValidateMissionOrder', $missionorder->ref);
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('ValidateMissionOrder'), $text, 'confirm_validate', '', 0, 1);
 		
 		print $formconfirm;
@@ -166,7 +169,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	}
 	elseif ($action == 'clone' && !empty($user->rights->missionorder->write))
 	{
-		$text = $langs->trans('ConfirmCloneMissionOrder', $missionorder->getNumero());
+		$text = $langs->trans('ConfirmCloneMissionOrder', $missionorder->ref);
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('CloneMissionOrder'), $text, 'confirm_clone', '', 0, 1);
 		
 		print $formconfirm;
@@ -188,6 +191,8 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	if ($mode == 'edit') echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_mission_order');
 	
+	$linkback = '<a href="'.dol_buildpath('/missionorder/list.php', 1).'">' . $langs->trans("BackToList") . '</a>';
+	
 	print $TBS->render('tpl/card.tpl.php'
 		,array() // Block
 		,array(
@@ -196,7 +201,8 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 				'mode' => $mode
 				,'action' => 'save'
 				,'urlcard' => dol_buildpath('/missionorder/card.php', 1)
-				,'showRef' => empty($missionorder->ref) ? $langs->trans('Draft') : $missionorder->ref
+				,'urllist' => dol_buildpath('/missionorder/list.php', 1)
+				,'showRef' => ($action == 'create') ? $langs->trans('Draft') : $form->showrefnav($missionorder->generic, 'ref', $linkback, 1, 'ref', 'ref', '')
 				,'showLabel' => $formcore->texte('', 'label', $missionorder->label, 80, 255)
 				,'showProject' => $htmlProject
 				,'showUsers' => $htmlUsers

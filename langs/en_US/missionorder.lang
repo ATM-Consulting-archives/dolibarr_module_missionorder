@@ -38,4 +38,12 @@ MissionOrderStatusValidated=Validated (waiting to be accepted)
 MissionOrderStatusRefused=Refused (closed)
 MissionOrderStatusAccepted=Accepted (closed)
 
+# WARNING | ERROR
+warning_date_start_end_must_be_fill=Warning: the start and end dates are required
+warning_date_start_must_be_inferior_as_date_end=Warning: the start date must be inferior to the end date
+warning_no_user_linked=Warning: an association to a user is required
+warning_no_project_selected=Warning: an association to a project is required
+warning_fk_user_fetch_fail=Warning: failure to load any user [id: %d]
+warning_fk_project_fetch_fail=Warning: failure to load the project [id: %d]
+
 error_rowid_in_dict_not_found=(error: reference [%d] not found)

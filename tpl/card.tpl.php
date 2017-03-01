@@ -4,7 +4,7 @@
 		<tbody>
 			<tr class="ref">
 				<td width="25%">[langs.transnoentities(Ref)]</td>
-				<td>[view.showRef]</td>
+				<td>[view.showRef;strconv=no]</td>
 			</tr>
 
 			<tr class="label">

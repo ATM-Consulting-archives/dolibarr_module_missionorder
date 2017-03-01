@@ -29,7 +29,7 @@ class TMissionOrder extends TObjetStd
 
 	public function __construct()
 	{
-		global $conf,$langs;
+		global $conf,$langs,$db;
 		
 		$this->set_table(MAIN_DB_PREFIX.'mission_order');
 		
@@ -48,10 +48,14 @@ class TMissionOrder extends TObjetStd
 		$this->setChild('TMissionOrderReason','fk_mission_order');
 		$this->setChild('TMissionOrderCarriage','fk_mission_order');
 		
+		if (!class_exists('GenericObject')) require_once DOL_DOCUMENT_ROOT.'/core/class/genericobject.class.php';
+		$this->generic = new GenericObject($db);
+		$this->generic->table_element = $this->get_table();
+		
 		$this->date_start = null;
 		$this->date_end = null;
 		$this->project = null;
-		$this->generic = null;
+		
 		$this->initDefaultvalue();
 		
 		$this->entity = $conf->entity;
@@ -106,22 +110,24 @@ class TMissionOrder extends TObjetStd
 			$this->project->fetch($this->fk_project);
 		}
 		
+		$this->generic->id = $this->getId();
+		$this->generic->ref = $this->ref;
+		
 		if ($loadChild) $this->fetchObjectLinked();
 		
 		return $res;
 	}
 	
 	/**
+	 * TODO à construire : fetchObjectLinked
 	 * Fetch NDFP linked
 	 */
 	public function fetchObjectLinked()
 	{
 		global $db;
 		
-		if (!class_exists('GenericObject')) require_once DOL_DOCUMENT_ROOT.'/core/class/genericobject.class.php';
-		
-		$generic = new GenericObject($db);
-		$generic->fetchObjectLinked($this->getId(), get_class($this));
+//		$generic = new GenericObject($db);
+		$this->generic->fetchObjectLinked($this->getId(), get_class($this));
 		
 		/*if (!empty($generic->linkedObjectsIds['project']) && empty($generic->linkedObjects['project']))
 		{
@@ -132,9 +138,12 @@ class TMissionOrder extends TObjetStd
 			}
 		}*/
 		
-		$this->generic = &$generic;
+		//$this->generic = &$generic;
 	}
 	
+	/**
+	 * TODO à construire : setNdfLink
+	 */
 	public function setNdfLink(&$ndfp)
 	{
 		global $db;
@@ -150,8 +159,6 @@ class TMissionOrder extends TObjetStd
 			// targettype = get_class($ndfp)
 			
 		}
-
-		
 		
 	}
 

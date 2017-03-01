@@ -8,7 +8,6 @@ if(empty($user->rights->missionorder->read)) accessforbidden();
 $langs->load('missionorder@missionorder');
 $langs->load('abricot@abricot');
 
-
 $hookmanager->initHooks(array('missionorderlist'));
 
 /*
@@ -23,16 +22,23 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 /*
  * View
  */
+
 _list();
 
 function _list()
 {
-	global $db,$langs,$user,$conf;
+	global $db,$langs,$user,$conf,$hookmanager;
 	
 	llxHeader('',$langs->trans('listMissionOrder'),'','');
 	
 	// TODO ajouter les colonnes manquantes ET une colonne action pour la notion de validation rapide
-	$sql = 'SELECT mo.rowid, mo.ref, mo.label, mo.location, mo.fk_project, mo.date_start, mo.date_end, mo.date_refuse, mo.date_accept, mo.status, GROUP_CONCAT(mou.fk_user SEPARATOR \',\') as TUserId
+	$sql = 'SELECT mo.rowid, mo.ref, mo.label, mo.location, mo.fk_project, mo.date_start, mo.date_end, mo.date_refuse, mo.date_accept
+					, mo.status, GROUP_CONCAT(mou.fk_user SEPARATOR \',\') as TUserId';
+	
+	// TODO il faut aussi check si l'user à le droit de d'accepter des OM
+	if (!empty($conf->ndfp->enabled)) $sql .= ', \'\' as action';
+	
+	$sql.= '
 			FROM '.MAIN_DB_PREFIX.'mission_order mo
 			LEFT JOIN '.MAIN_DB_PREFIX.'projet p ON (p.rowid = mo.fk_project)
 			LEFT JOIN '.MAIN_DB_PREFIX.'mission_order_user mou ON (mou.fk_mission_order = mo.rowid)
@@ -76,9 +82,9 @@ function _list()
 		)
 		,'liste' => array(
 			'titre' => $langs->trans('ListMissionOrder')
-			,'image' => img_picto('','title.png', '', 0)
-			,'picto_precedent' => img_picto('','back.png', '', 0)
-			,'picto_suivant' => img_picto('','next.png', '', 0)
+			,'image' => img_picto('','title_generic.png', '', 0)
+			,'picto_precedent' => '<'
+			,'picto_suivant' => '>'
 			,'noheader' => 0
 			,'messageNothing' => $langs->trans('NoMissionOrder')
 			,'picto_search' => img_picto('','search.png', '', 0)
@@ -97,20 +103,24 @@ function _list()
 		)
 		,'eval'=>array(
 			'ref' => 'TMissionOrder::getStaticNomUrl(@rowid@, 1)'
-			,'fk_project' => 'getProjectNomUrl(@val@)'
-			,'date_start' => 'formatDate("@val@")'
-			,'date_end' => 'formatDate("@val@")'
-			,'date_refuse' => 'formatDate("@val@")'
-			,'date_accept' => 'formatDate("@val@")'
+			,'fk_project' => '_getProjectNomUrl(@val@)'
+			,'date_start' => '_formatDate("@val@")'
+			,'date_end' => '_formatDate("@val@")'
+			,'date_refuse' => '_formatDate("@val@")'
+			,'date_accept' => '_formatDate("@val@")'
 			,'status' => 'TMissionOrder::LibStatut(@val@, 4)'
-			,'TUserId' => 'getUsersLink("@val@")'
+			,'TUserId' => '_getUsersLink("@val@")'
 		)
 	));
+	
+	$parameters=array('sql'=>$sql);
+	$reshook=$hookmanager->executeHooks('printFieldListFooter', $parameters, $missionorder);    // Note that $action and $object may have been modified by hook
+	print $hookmanager->resPrint;
 	
 	llxFooter('');
 }
 
-function getProjectNomUrl($fk_project)
+function _getProjectNomUrl($fk_project)
 {
 	global $db;
 	
@@ -120,7 +130,7 @@ function getProjectNomUrl($fk_project)
 	return $project->getNomUrl(1, '', 1);
 }
 
-function formatDate($date)
+function _formatDate($date)
 {
 	global $db;
 	
@@ -130,7 +140,7 @@ function formatDate($date)
 	return dol_print_date($db->jdate($date), 'dayhour');
 }
 
-function getUsersLink($fk_user_string)
+function _getUsersLink($fk_user_string)
 {
 	global $db,$TUserLink;
 	
