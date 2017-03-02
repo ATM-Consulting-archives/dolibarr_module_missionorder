@@ -117,6 +117,12 @@ if (empty($reshook))
 			header('Location: '.dol_buildpath('/missionorder/list.php', 1));
 			exit;
 			break;
+		case 'confirm_to_approve':
+			$missionorder->setToApprove($PDOdb);
+			
+			header('Location: '.dol_buildpath('/missionorder/card.php', 1).'?id='.$missionorder->getId());
+			exit;
+			break;
 	}
 }
 
@@ -128,7 +134,7 @@ _fiche($PDOdb, $missionorder, $mode, $action);
 
 function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 {
-	global $db,$user,$langs;
+	global $db,$user,$langs,$conf;
 	
 	// Force mode 'view' if can't edit object
 	if (empty($user->rights->missionorder->write)) $mode = 'view';
@@ -152,29 +158,30 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	$formcore->Set_typeaff($mode);
 	
 	$form = new Form($db);
+	$formconfirm = '';
 	
 	if ($action == 'validate' && !empty($user->rights->missionorder->write))
 	{
 		$text = $langs->trans('ConfirmValidateMissionOrder', $missionorder->ref);
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('ValidateMissionOrder'), $text, 'confirm_validate', '', 0, 1);
-		
-		print $formconfirm;
 	}
 	elseif ($action == 'delete' && !empty($user->rights->missionorder->write))
 	{
 		$text = $langs->trans('ConfirmDeleteMissionOrder');
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('DeleteMissionOrder'), $text, 'confirm_delete', '', 0, 1);
-		
-		print $formconfirm;
 	}
 	elseif ($action == 'clone' && !empty($user->rights->missionorder->write))
 	{
 		$text = $langs->trans('ConfirmCloneMissionOrder', $missionorder->ref);
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('CloneMissionOrder'), $text, 'confirm_clone', '', 0, 1);
-		
-		print $formconfirm;
+	}
+	elseif ($action == 'to_approve' && !empty($user->rights->missionorder->write))
+	{
+		$text = $langs->trans('ConfirmToApproveMissionOrder', $missionorder->ref);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('ToApproveMissionOrder'), $text, 'confirm_to_approve', '', 0, 1);
 	}
 	
+	if (!empty($formconfirm)) echo $formconfirm;
 	
 	$htmlProject = getProjectView($mode, $missionorder->fk_project);
 	$htmlUsers = getUsersView($missionorder->TMissionOrderUser, $form, $mode);
@@ -192,7 +199,6 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	if ($mode == 'edit') echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_mission_order');
 	
 	$linkback = '<a href="'.dol_buildpath('/missionorder/list.php', 1).'">' . $langs->trans("BackToList") . '</a>';
-	
 	print $TBS->render('tpl/card.tpl.php'
 		,array() // Block
 		,array(
@@ -218,6 +224,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 			,'form' => $form
 			,'formproject' => $formproject
 			,'user' => $user
+			,'conf' => $conf
 		)
 	);
 	

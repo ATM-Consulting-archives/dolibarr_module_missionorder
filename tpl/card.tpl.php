@@ -88,11 +88,18 @@
 		[onshow;block=end]
 		
 		[onshow;block=begin;when [missionorder.status]=1]
+			[onshow;block=begin;when [conf.valideur.enabled;noerr]=1]
+			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=to_approve" class="butAction">[langs.transnoentities(SendToBeApprove)]</a></div>
+			[onshow;block=end]
 		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=modif" class="butAction">[langs.transnoentities(Reopen)]</a></div>
 		[onshow;block=end]
+
 		
 		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=clone" class="butAction">[langs.transnoentities(ToClone)]</a></div>
+		
+		[onshow;block=begin;when [missionorder.status]-+2]
 		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=delete" class="butActionDelete">[langs.transnoentities(Delete)]</a></div>
+		[onshow;block=end]
 		
 	[onshow;block=end]
 </div>

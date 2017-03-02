@@ -13,15 +13,20 @@ class TMissionOrder extends TObjetStd
 	/**
 	 * Refused status
 	 */
-	const STATUS_REFUSED = 2;
+	const STATUS_TO_APPROVE = 2;
+	/**
+	 * Refused status
+	 */
+	const STATUS_REFUSED = 3;
 	/**
 	 * Accepted status
 	 */
-	const STATUS_ACCEPTED = 3;
+	const STATUS_ACCEPTED = 4;
 	
 	public static $TStatus = array(
 		self::STATUS_DRAFT => 'Draft'
 		,self::STATUS_VALIDATED => 'Validate'
+		,self::STATUS_TO_APPROVE => 'ToApprove'
 		,self::STATUS_REFUSED => 'Refuse'
 		,self::STATUS_ACCEPTED => 'Accept'
 	);
@@ -142,9 +147,9 @@ class TMissionOrder extends TObjetStd
 	}
 	
 	/**
-	 * TODO à construire : setNdfLink
+	 * TODO à construire : addNdfLink
 	 */
-	public function setNdfLink(&$ndfp)
+	public function addNdfLink(&$ndfp)
 	{
 		global $db;
 		
@@ -162,19 +167,6 @@ class TMissionOrder extends TObjetStd
 		
 	}
 
-	public function setValid(&$PDOdb, &$user)
-	{
-		$this->ref = $this->getNumero();
-		
-		$this->date_valid = dol_now();
-		$this->status = self::STATUS_VALIDATED;
-		$this->fk_user_valid = $user->id;
-		
-		// TODO envoyer mail aux valideurs
-		
-		return parent::save($PDOdb);
-	}
-	
 	public function setDraft(&$PDOdb)
 	{
 		if ($this->status == self::STATUS_VALIDATED)
@@ -188,6 +180,139 @@ class TMissionOrder extends TObjetStd
 		return 0;
 	}
 	
+	public function setValid(&$PDOdb, &$user)
+	{
+		$this->ref = $this->getNumero();
+		
+		$this->date_valid = dol_now();
+		$this->status = self::STATUS_VALIDATED;
+		$this->fk_user_valid = $user->id;
+		
+		return parent::save($PDOdb);
+	}
+	
+	public function setToApprove(&$PDOdb)
+	{
+		global $langs,$db;
+		
+		$this->status = self::STATUS_TO_APPROVE;
+		$this->withChild = false;
+
+		// TODO à améliorer
+		$u = new User($db);
+		$u->fetch($this->TMissionOrderUser[0]->fk_user);
+		
+		$from = $u->email;
+		$to = ''; // TODO get next valideur
+		
+		$res = $this->sendMail($from, $to, $langs->transnoentities('MissionOrder_MailToApprove'), dol_buildpath('/missionorder/tpl/mail.mission.toapprove.tpl.php'));
+		
+		if ($res < 0) return -1;
+		
+		return parent::save($PDOdb);
+	}
+	
+	public function setRefused(&$PDOdb)
+	{
+		// TODO set status
+		
+		// TODO send Mail au users associés
+		
+		
+		// FIN DU PROCESS
+	}
+	
+	public function setAccepted(&$PDOdb)
+	{
+		// TODO set status
+		
+		// TODO send Mail au users associés
+		
+		
+		// FIN DU PROCESS
+	}
+
+	private function sendMail($from, $to, $subject, $tpl)
+	{
+		global $langs,$conf,$db;
+		
+		require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
+		
+		if (!isValidEmail($from) || !isValidEmail($to))
+		{
+			setEventMessages($langs->trans('error_mail_not_valid', $from, $to), array(), 'errors');
+			return -1;
+		}
+		
+		$emails_string = '';
+		$TUser = array();
+		foreach ($this->TMissionOrderUser as &$missionOrderUser)
+		{
+			$u = new User($db);
+			if ($u->fetch($missionOrderUser->fk_user) > 0)
+			{
+				$TUser[] = $u;
+				if (!empty($u->email) && isValidEmail($u->email)) $emails_string .= '<'.$u->email.'>, ';
+				else setEventMessages($langs->trans('warning_other_mail_not_valid', $u->email), array(), 'warnings');
+			}
+		}
+
+		$emails_string = rtrim($emails_string, ', ');
+		
+		$filename_list = array();
+		$mimetype_list = array();
+		$mimefilename_list = array();
+		
+		$TBS = new TTemplateTBS();
+		$message = $TBS->render($tpl
+			,array(
+				'TUser' => $TUser
+			)
+			,array(
+				'missionorder' => $this
+				,'view' => array(
+					'to' => $to
+					,'from' => $from
+					,'urlmissioncard' => dol_buildpath('/missionorder/card.php', 2).'?id='.$this->getId()
+				)
+				,'langs' => $langs
+			)
+		);
+		
+		$CMail = new CMailFile(	
+			$subject
+			,$to
+			,$from
+			,$message
+			,$filename_list
+			,$mimetype_list
+			,$mimefilename_list
+			,$emails_string //,$addr_cc=""
+			,'' //,$addr_bcc=""
+			,'' //,$deliveryreceipt=0
+			,1 //,$msgishtml=0*/
+			,$errors_to=$conf->global->MAIN_MAIL_ERRORS_TO
+			//,$css=''
+		);
+		
+		// Send mail
+		$CMail->sendfile();
+		
+		if ($CMail->error)
+		{
+			setEventMessages($CMail->error, array(), 'errors');
+			dol_syslog('['.date('YmdHis').'] '.get_class($this).'::sendMail - MESSAGE = '.$CMail->error, LOG_ERR);
+			return 0;
+		}
+		else
+		{
+			$txt = $langs->trans('MissionOrderSendMailSuccess', $from, $to);
+			setEventMessages($txt, array());
+			dol_syslog('['.date('YmdHis').'] '.get_class($this).'::sendMail - MESSAGE = '.$txt);
+			return 1;
+		}
+	}
+
 	public function getNumero()
 	{
 		if (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref))
@@ -298,6 +423,7 @@ class TMissionOrder extends TObjetStd
 
 		if ($status==self::STATUS_DRAFT) { $statustrans='statut0'; $keytrans='MissionOrderStatusDraft'; $shortkeytrans='Draft'; }
 		if ($status==self::STATUS_VALIDATED) { $statustrans='statut1'; $keytrans='MissionOrderStatusValidated'; $shortkeytrans='Validate'; }
+		if ($status==self::STATUS_TO_APPROVE) { $statustrans='statut3'; $keytrans='MissionOrderStatusToApprove'; $shortkeytrans='ToApprove'; }
 		if ($status==self::STATUS_REFUSED) { $statustrans='statut5'; $keytrans='MissionOrderStatusRefused'; $shortkeytrans='Refused'; }
 		if ($status==self::STATUS_ACCEPTED) { $statustrans='statut6'; $keytrans='MissionOrderStatusAccepted'; $shortkeytrans='Accepted'; }
 
