@@ -42,6 +42,7 @@ function _list()
 			FROM '.MAIN_DB_PREFIX.'mission_order mo
 			LEFT JOIN '.MAIN_DB_PREFIX.'projet p ON (p.rowid = mo.fk_project)
 			LEFT JOIN '.MAIN_DB_PREFIX.'mission_order_user mou ON (mou.fk_mission_order = mo.rowid)
+			WHERE mo.entity IN ('.getEntity('TMissionOrder', 1).')
 			GROUP BY mo.rowid
 	';
 	
