@@ -39,7 +39,7 @@ SendToBeApprove=Send to be approved
 # FROM OBJECT
 MissionOrderStatusDraft=Draft (needs to be validated)
 MissionOrderStatusValidated=Validated (needs to be approved)
-MissionOrderStatusToApprove=To approve (waiting to be approve)
+MissionOrderStatusToApprove=Pending approval (waiting)
 MissionOrderStatusRefused=Refused (closed)
 MissionOrderStatusAccepted=Accepted (closed)
 
@@ -50,13 +50,22 @@ warning_no_user_linked=Warning: an association to a user is required
 warning_no_project_selected=Warning: an association to a project is required
 warning_fk_user_fetch_fail=Warning: failure to load any user [id: %d]
 warning_fk_project_fetch_fail=Warning: failure to load the project [id: %d]
-warning_other_mail_not_valid=Warning : email with wrong format (%s)
 
 error_rowid_in_dict_not_found=(error: reference [%d] not found)
-error_mail_not_valid=Error: email with wrong format (from=%s, to=%s)
 
 # MAIL
-MissionOrder_MailToApprove=Application for approval
+MissionOrderSendMailSuccess=Mails sent (from=%s; to=%s)
+
+MissionOrder_MailSubjectToApprove=Application for approval
+MissionOrder_MailSubjectIsRefused=Request refused
+MissionOrder_MailSubjectIsAccepted=Request accepted
+MissionOrder_MailSubjectNewApproval=New approval
+
 MailHello=Hello,
+
 MailTitleToApprove=Please find below the link of a mission order approval request under reference: <b>%s</b>
+MailTitleIsRefused=The mission order <b>%s</b> has been refused by %s
+MailTitleIsAccepted=The mission order <b>%s</b> has accepted
+MailTitleNewApproval=The mission order <b>%s</b> has been approved by <b>%s</b>
+
 MailLinkToMissionOrder=Click to view the mission order

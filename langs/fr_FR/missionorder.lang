@@ -39,7 +39,7 @@ SendToBeApprove=Envoyer pour approbation
 # FROM OBJECT
 MissionOrderStatusDraft=Brouillon (à valider)
 MissionOrderStatusValidated=Validée (à approuver)
-MissionOrderStatusToApprove=A approuver (en attente d'approbation)
+MissionOrderStatusToApprove=En cours d'approbation (en attente)
 MissionOrderStatusRefused=Refusée (fermée)
 MissionOrderStatusAccepted=Acceptée (fermée)
 
@@ -50,13 +50,22 @@ warning_no_user_linked=Attention : l'association à un utilisateur est obligatoi
 warning_no_project_selected=Attention : l'association à un projet est obligatoire
 warning_fk_user_fetch_fail=Attention : échec sur le chargement d'un utilisateur [id : %d]
 warning_fk_project_fetch_fail=Attention : échec sur le chargement du projet [id : %d]
-warning_other_mail_not_valid=Attention : format email incorrect (%s)
 
 error_rowid_in_dict_not_found=(erreur : référence [%d] non trouvée)
-error_mail_not_valid=Erreur : format email incorrect (from=%s, to=%s)
 
 # MAIL
-MissionOrder_MailToApprove=Demande d'approbation
+MissionOrderSendMailSuccess=Mails envoyés (from=%s; to=%s)
+
+MissionOrder_MailSubjectToApprove=Demande d'approbation
+MissionOrder_MailSubjectIsRefused=Demande refusée
+MissionOrder_MailSubjectIsAccepted=Demande Acceptée
+MissionOrder_MailSubjectNewApproval=Nouvelle approbation
+
 MailHello=Bonjour,
+
 MailTitleToApprove=Veuillez trouver ci-dessous le lien d'une demande d'approbation d'ordre de mission sous la référence : <b>%s</b>
+MailTitleIsRefused=L'ordre de mission <b>%s</b> vient d'être refusé par <b>%s</b>
+MailTitleIsAccepted=L'ordre de mission <b>%s</b> a était accepté
+MailTitleNewApproval=L'ordre de mission <b>%s</b> vient d'être approuvé par <b>%s</b>
+
 MailLinkToMissionOrder=Cliquez pour voir l'ordre de mission

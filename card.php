@@ -5,6 +5,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 dol_include_once('/missionorder/class/missionorder.class.php');
 dol_include_once('/missionorder/lib/missionorder.lib.php');
+if (!empty($conf->valideur->enabled)) dol_include_once('/valideur/class/valideur.class.php');
 
 if(empty($user->rights->missionorder->read)) accessforbidden();
 

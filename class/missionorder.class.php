@@ -191,21 +191,75 @@ class TMissionOrder extends TObjetStd
 		return parent::save($PDOdb);
 	}
 	
+	private function getTValideurFromTUser(&$PDOdb, &$TUser)
+	{
+		$TValideur = array();
+		foreach ($TUser as &$u)
+		{
+			$Tab = TRH_valideur_groupe::getUserValideur($PDOdb, $u, $this, 'missionOrder', 'object');
+			
+			foreach ($Tab as &$u)
+			{
+				$TValideur[$u->id] = $u;
+			}
+		}
+		
+		return $TValideur;
+	}
+	
+	private function concatMailFromUser(&$TUser)
+	{
+		$emails_string = '';
+		
+		foreach ($TUser as &$u)
+		{
+			if (!empty($u->email) && isValidEmail($u->email)) $emails_string .= '<'.$u->email.'>, ';
+		}
+		
+		$emails_string = rtrim($emails_string, ', ');
+		
+		return $emails_string;
+	}
+	
+	private function getFirstMailFromUser(&$TUser)
+	{
+		foreach ($TUser as &$u)
+		{
+			if (!empty($u->email) && isValidEmail($u->email)) return $u->email;
+		}
+		
+		return '';
+	}
+	
+	private function getUserFromMission($force_load=false)
+	{
+		global $db;
+		
+		if (!$force_load && !empty($this->TUser)) return $this->TUser;
+		
+		$this->TUser = array();
+		foreach ($this->TMissionOrderUser as &$missionOrderUser)
+		{
+			$u = new User($db);
+			if ($u->fetch($missionOrderUser->fk_user) > 0) $this->TUser[] = $u;
+		}
+		
+		return $this->TUser;
+	}
+	
 	public function setToApprove(&$PDOdb)
 	{
-		global $langs,$db;
-		
 		$this->status = self::STATUS_TO_APPROVE;
 		$this->withChild = false;
 
-		// TODO à améliorer
-		$u = new User($db);
-		$u->fetch($this->TMissionOrderUser[0]->fk_user);
+		$TUser = $this->getUserFromMission();
+		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser);
 		
-		$from = $u->email;
-		$to = ''; // TODO get next valideur
+		$from = $this->getFirstMailFromUser($TUser);
+		$to = $this->concatMailFromUser($TValideur);
+		$addr_cc = $this->concatMailFromUser($TUser);
 		
-		$res = $this->sendMail($from, $to, $langs->transnoentities('MissionOrder_MailToApprove'), dol_buildpath('/missionorder/tpl/mail.mission.toapprove.tpl.php'));
+		$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php', $addr_cc);
 		
 		if ($res < 0) return -1;
 		
@@ -214,57 +268,49 @@ class TMissionOrder extends TObjetStd
 	
 	public function setRefused(&$PDOdb)
 	{
-		// TODO set status
+		global $user;
 		
-		// TODO send Mail au users associés
+		$this->status = self::STATUS_REFUSED;
+		$this->withChild = false;
 		
+		$TUser = $this->getUserFromMission();
 		
+		$from = $user->email;
+		$to = $this->concatMailFromUser($TUser);
+		
+		$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectIsRefused', '/missionorder/tpl/mail.mission.isrefused.tpl.php');
+		
+		return parent::save($PDOdb);
 		// FIN DU PROCESS
 	}
 	
 	public function setAccepted(&$PDOdb)
 	{
-		// TODO set status
+		global $user;
 		
-		// TODO send Mail au users associés
+		$this->status = self::STATUS_ACCEPTED;
+		$this->withChild = false;
 		
+		$TUser = $this->getUserFromMission();
 		
+		$from = $user->email;
+		$to = $this->concatMailFromUser($TUser);
+		
+		$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectIsAccepted', '/missionorder/tpl/mail.mission.isaccepted.tpl.php');
+		
+		return parent::save($PDOdb);
 		// FIN DU PROCESS
 	}
 
-	private function sendMail($from, $to, $subject, $tpl)
+	
+	private function sendMail(&$TUser, $from, $to, $subject_key, $tpl_path, $addr_cc='', $filename_list = array(), $mimetype_list = array(), $mimefilename_list = array())
 	{
-		global $langs,$conf,$db;
+		global $langs,$conf,$user;
 		
-		require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
-		
-		if (!isValidEmail($from) || !isValidEmail($to))
-		{
-			setEventMessages($langs->trans('error_mail_not_valid', $from, $to), array(), 'errors');
-			return -1;
-		}
-		
-		$emails_string = '';
-		$TUser = array();
-		foreach ($this->TMissionOrderUser as &$missionOrderUser)
-		{
-			$u = new User($db);
-			if ($u->fetch($missionOrderUser->fk_user) > 0)
-			{
-				$TUser[] = $u;
-				if (!empty($u->email) && isValidEmail($u->email)) $emails_string .= '<'.$u->email.'>, ';
-				else setEventMessages($langs->trans('warning_other_mail_not_valid', $u->email), array(), 'warnings');
-			}
-		}
-
-		$emails_string = rtrim($emails_string, ', ');
-		
-		$filename_list = array();
-		$mimetype_list = array();
-		$mimefilename_list = array();
+		require_once DOL_DOCUMENT_ROOT.'/core/class/CMailFile.class.php';
 		
 		$TBS = new TTemplateTBS();
-		$message = $TBS->render($tpl
+		$message = $TBS->render(dol_buildpath($tpl_path)
 			,array(
 				'TUser' => $TUser
 			)
@@ -276,18 +322,19 @@ class TMissionOrder extends TObjetStd
 					,'urlmissioncard' => dol_buildpath('/missionorder/card.php', 2).'?id='.$this->getId()
 				)
 				,'langs' => $langs
+				,'user' => $user
 			)
 		);
 		
 		$CMail = new CMailFile(	
-			$subject
+			$langs->transnoentities($subject_key)
 			,$to
 			,$from
 			,$message
 			,$filename_list
 			,$mimetype_list
 			,$mimefilename_list
-			,$emails_string //,$addr_cc=""
+			,$addr_cc //,$addr_cc=""
 			,'' //,$addr_bcc=""
 			,'' //,$deliveryreceipt=0
 			,1 //,$msgishtml=0*/
@@ -311,6 +358,34 @@ class TMissionOrder extends TObjetStd
 			dol_syslog('['.date('YmdHis').'] '.get_class($this).'::sendMail - MESSAGE = '.$txt);
 			return 1;
 		}
+	}
+	
+	public function addApprobation(&$PDOdb)
+	{
+		global $user;
+		
+		$TUser = $this->getUserFromMission();
+		
+		$from = $user->email;
+		$to = $this->concatMailFromUser($TUser);
+		
+		$this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectNewApproval', '/missionorder/tpl/mail.mission.newapproval.tpl.php');
+		
+		if (!empty($TValideur))
+		{
+			//	TODO add link dans la table valideur
+			
+			$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser); // TODO Check nextValideur
+			$to = $this->concatMailFromUser($TValideur);
+			
+			$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php');
+		}
+		else
+		{
+			$res = $this->setAccepted($PDOdb);
+		}
+		
+		return $res;
 	}
 
 	public function getNumero()
