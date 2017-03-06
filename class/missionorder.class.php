@@ -542,6 +542,21 @@ class TMissionOrder extends TObjetStd
 		elseif ($mode == 3) return img_picto($langs->trans($keytrans), $statustrans).' '.$langs->trans($shortkeytrans);
 		elseif ($mode == 4) return $langs->trans($shortkeytrans).' '.img_picto($langs->trans($keytrans), $statustrans);
 	}
+	
+	public function checkUserAccess($fk_user)
+	{
+		global $conf;
+		
+		if (!$this->getId()) return true;
+		if (!empty($conf->valideur->enabled) && TRH_valideur_groupe::isValideur($PDOdb, $fk_user, $this->getUsersGroup(1), false, 'missionOrder'))  return true;
+		
+		foreach ($this->TMissionOrderUser as &$missionOrderUser)
+		{
+			if ($missionOrderUser->fk_user == $fk_user) return true;
+		}
+		
+		return false;
+	}
 }
 
 class TMissionOrderUser extends TObjetStd

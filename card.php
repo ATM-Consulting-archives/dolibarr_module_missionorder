@@ -26,6 +26,8 @@ $missionorder = new TMissionOrder;
 if (!empty($id)) $missionorder->load($PDOdb, $id);
 elseif (!empty($ref)) $missionorder->loadBy($PDOdb, $ref, 'ref');
 
+if ($missionorder->checkUserAccess($user->id)) accessforbidden();
+
 $hookmanager->initHooks(array('missionordercard', 'globalcard'));
 
 $parameters = array('id' => $id, 'ref' => $ref, 'mode' => $mode);
