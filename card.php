@@ -124,6 +124,12 @@ if (empty($reshook))
 			header('Location: '.dol_buildpath('/missionorder/card.php', 1).'?id='.$missionorder->getId());
 			exit;
 			break;
+		case 'confirm_approve':
+			$missionorder->addApprobation($PDOdb);
+			
+			header('Location: '.dol_buildpath('/missionorder/card.php', 1).'?id='.$missionorder->getId());
+			exit;
+			break;
 	}
 }
 
@@ -159,29 +165,8 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	$formcore->Set_typeaff($mode);
 	
 	$form = new Form($db);
-	$formconfirm = '';
 	
-	if ($action == 'validate' && !empty($user->rights->missionorder->write))
-	{
-		$text = $langs->trans('ConfirmValidateMissionOrder', $missionorder->ref);
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('ValidateMissionOrder'), $text, 'confirm_validate', '', 0, 1);
-	}
-	elseif ($action == 'delete' && !empty($user->rights->missionorder->write))
-	{
-		$text = $langs->trans('ConfirmDeleteMissionOrder');
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('DeleteMissionOrder'), $text, 'confirm_delete', '', 0, 1);
-	}
-	elseif ($action == 'clone' && !empty($user->rights->missionorder->write))
-	{
-		$text = $langs->trans('ConfirmCloneMissionOrder', $missionorder->ref);
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('CloneMissionOrder'), $text, 'confirm_clone', '', 0, 1);
-	}
-	elseif ($action == 'to_approve' && !empty($user->rights->missionorder->write))
-	{
-		$text = $langs->trans('ConfirmToApproveMissionOrder', $missionorder->ref);
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('ToApproveMissionOrder'), $text, 'confirm_to_approve', '', 0, 1);
-	}
-	
+	$formconfirm = getFormConfirm($PDOdb, $form, $missionorder, $action);
 	if (!empty($formconfirm)) echo $formconfirm;
 	
 	$htmlProject = getProjectView($mode, $missionorder->fk_project);
@@ -199,6 +184,9 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	if ($mode == 'edit') echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_mission_order');
 	
+	$TUsersGroup = $missionorder->getUsersGroup(1);
+	$is_valideur = !empty($conf->valideur->enabled) ? TRH_valideur_groupe::isValideur($PDOdb, $user->id, $TUsersGroup, false, 'missionOrder') : false;
+	
 	$linkback = '<a href="'.dol_buildpath('/missionorder/list.php', 1).'">' . $langs->trans("BackToList") . '</a>';
 	print $TBS->render('tpl/card.tpl.php'
 		,array() // Block
@@ -207,6 +195,9 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 			,'view' => array(
 				'mode' => $mode
 				,'action' => 'save'
+				,'can_accept' => !empty($conf->valideur->enabled) ? TRH_valideur_groupe::canBeValidateByThisUser($PDOdb, $user, $missionorder, $TUsersGroup, 'missionOrder', $missionorder->entity) : false // Fait tout les tests pour checker s'il peut valider
+				,'can_delete' => in_array($user->id, $TUsersGroup) || $is_valideur
+				,'allowed_user' => in_array($user->id, $TUsersGroup) || $is_valideur
 				,'urlcard' => dol_buildpath('/missionorder/card.php', 1)
 				,'urllist' => dol_buildpath('/missionorder/list.php', 1)
 				,'showRef' => ($action == 'create') ? $langs->trans('Draft') : $form->showrefnav($missionorder->generic, 'ref', $linkback, 1, 'ref', 'ref', '')
@@ -226,6 +217,13 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 			,'formproject' => $formproject
 			,'user' => $user
 			,'conf' => $conf
+			,'TMissionOrder' => array(
+				'STATUS_DRAFT' => TMissionOrder::STATUS_DRAFT
+				,'STATUS_VALIDATED' => TMissionOrder::STATUS_VALIDATED
+				,'STATUS_TO_APPROVE' => TMissionOrder::STATUS_TO_APPROVE
+				,'STATUS_REFUSED' => TMissionOrder::STATUS_REFUSED
+				,'STATUS_ACCEPTED' => TMissionOrder::STATUS_ACCEPTED
+			)
 		)
 	);
 	

@@ -279,3 +279,38 @@ function getReasonOrCarraigeFromDict(&$missionorder, $type, $mode)
 	
 	return $res;
 }
+
+function getFormConfirm(&$PDOdb, &$form, &$missionorder, $action)
+{
+	global $langs,$conf,$user;
+	
+	$formconfirm = '';
+	
+	if ($action == 'validate' && !empty($user->rights->missionorder->write))
+	{
+		$text = $langs->trans('ConfirmValidateMissionOrder', $missionorder->ref);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('ValidateMissionOrder'), $text, 'confirm_validate', '', 0, 1);
+	}
+	elseif ($action == 'delete' && !empty($user->rights->missionorder->write))
+	{
+		$text = $langs->trans('ConfirmDeleteMissionOrder');
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('DeleteMissionOrder'), $text, 'confirm_delete', '', 0, 1);
+	}
+	elseif ($action == 'clone' && !empty($user->rights->missionorder->write))
+	{
+		$text = $langs->trans('ConfirmCloneMissionOrder', $missionorder->ref);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('CloneMissionOrder'), $text, 'confirm_clone', '', 0, 1);
+	}
+	elseif ($action == 'to_approve' && !empty($user->rights->missionorder->write))
+	{
+		$text = $langs->trans('ConfirmToApproveMissionOrder', $missionorder->ref);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('ToApproveMissionOrder'), $text, 'confirm_to_approve', '', 0, 1);
+	}
+	elseif ($action == 'approve' && !empty($conf->valideur->enabled) && TRH_valideur_groupe::isValideur($PDOdb, $user->id, $missionorder->getUsersGroup(1), false, 'missionOrder') )
+	{
+		$text = $langs->trans('ConfirmApproveMissionOrder', $missionorder->ref);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('ApproveMissionOrder'), $text, 'confirm_approve', '', 0, 1);
+	}
+	
+	return $formconfirm;
+}

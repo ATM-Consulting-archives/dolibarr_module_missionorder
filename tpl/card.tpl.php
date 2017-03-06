@@ -82,23 +82,35 @@
 <div class="tabsAction">
 	[onshow;block=begin;when [user.rights.missionorder.write;noerr]=1]
 	
-		[onshow;block=begin;when [missionorder.status]=0]
-		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=validate" class="butAction">[langs.transnoentities(Validate)]</a></div>
-		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=edit" class="butAction">[langs.transnoentities(Modify)]</a></div>
+		[onshow;block=begin;when [missionorder.status]=[TMissionOrder.STATUS_DRAFT]]
+			[onshow;block=begin;when [view.allowed_user]=1]
+			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=validate" class="butAction">[langs.transnoentities(Validate)]</a></div>
+			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=edit" class="butAction">[langs.transnoentities(Modify)]</a></div>
+			[onshow;block=end]
 		[onshow;block=end]
 		
-		[onshow;block=begin;when [missionorder.status]=1]
-			[onshow;block=begin;when [conf.valideur.enabled;noerr]=1]
-			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=to_approve" class="butAction">[langs.transnoentities(SendToBeApprove)]</a></div>
+		[onshow;block=begin;when [missionorder.status]=[TMissionOrder.STATUS_VALIDATED]]
+			[onshow;block=begin;when [view.allowed_user]=1]
+				[onshow;block=begin;when [conf.valideur.enabled;noerr]=1]
+				<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=to_approve" class="butAction">[langs.transnoentities(SendToBeApprove)]</a></div>
+				[onshow;block=end]
+			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=modif" class="butAction">[langs.transnoentities(Reopen)]</a></div>
 			[onshow;block=end]
-		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=modif" class="butAction">[langs.transnoentities(Reopen)]</a></div>
 		[onshow;block=end]
-
+		
+		<!-- TODO check permission -->
+		[onshow;block=begin;when [missionorder.status]=[TMissionOrder.STATUS_TO_APPROVE]]
+			[onshow;block=begin;when [view.can_accept]=1]
+			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=approve" class="butAction">[langs.transnoentities(Accept)]</a></div>
+			[onshow;block=end]
+		[onshow;block=end]
 		
 		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=clone" class="butAction">[langs.transnoentities(ToClone)]</a></div>
 		
-		[onshow;block=begin;when [missionorder.status]-+2]
-		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=delete" class="butActionDelete">[langs.transnoentities(Delete)]</a></div>
+		[onshow;block=begin;when [missionorder.status]-+[TMissionOrder.STATUS_TO_APPROVE]]
+			[onshow;block=begin;when [view.allowed_user]=1]
+			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=delete" class="butActionDelete">[langs.transnoentities(Delete)]</a></div>
+			[onshow;block=end]
 		[onshow;block=end]
 		
 	[onshow;block=end]

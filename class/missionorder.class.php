@@ -197,7 +197,6 @@ class TMissionOrder extends TObjetStd
 		foreach ($TUser as &$u)
 		{
 			$Tab = TRH_valideur_groupe::getUserValideur($PDOdb, $u, $this, 'missionOrder', 'object');
-			
 			foreach ($Tab as &$u)
 			{
 				$TValideur[$u->id] = $u;
@@ -313,6 +312,7 @@ class TMissionOrder extends TObjetStd
 		$message = $TBS->render(dol_buildpath($tpl_path)
 			,array(
 				'TUser' => $TUser
+				,'user' => array($user)
 			)
 			,array(
 				'missionorder' => $this
@@ -322,7 +322,6 @@ class TMissionOrder extends TObjetStd
 					,'urlmissioncard' => dol_buildpath('/missionorder/card.php', 2).'?id='.$this->getId()
 				)
 				,'langs' => $langs
-				,'user' => $user
 			)
 		);
 		
@@ -364,26 +363,36 @@ class TMissionOrder extends TObjetStd
 	{
 		global $user;
 		
+		if (TRH_valideur_object::alreadyAcceptedByThisUser($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder')) return 0;
+		
 		$TUser = $this->getUserFromMission();
 		
 		$from = $user->email;
 		$to = $this->concatMailFromUser($TUser);
 		
+		// Mail du valideur vers les users de l'OM
 		$this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectNewApproval', '/missionorder/tpl/mail.mission.newapproval.tpl.php');
 		
+		$PDOdb->beginTransaction();
+		
+		$TRH_valideur_object = TRH_valideur_object::addLink($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder');
+		
+		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser); // TODO Check nextValideur		
 		if (!empty($TValideur))
 		{
-			//	TODO add link dans la table valideur
-			
-			$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser); // TODO Check nextValideur
 			$to = $this->concatMailFromUser($TValideur);
-			
+			// Mail du valideur vers le/les prochain valideurs
 			$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php');
+			$res = 1;
 		}
 		else
 		{
+			// Plus aucun valideur, on est donc en bout de chaine => on accepte l'OM
 			$res = $this->setAccepted($PDOdb);
 		}
+		
+		if ($res > 0) $PDOdb->commit();
+		else $PDOdb->rollback();
 		
 		return $res;
 	}
@@ -449,6 +458,30 @@ class TMissionOrder extends TObjetStd
 		$this->setChildren($PDOdb, $TCarriageId, 'TMissionOrderCarriage', 'fk_mission_order', 'fk_c_mission_order_carriage');
 	}
 
+	/**
+	 * Return array of key or object grou
+	 */
+	public function getUsersGroup($as_array=0)
+	{
+		global $db;
+		
+		require_once DOL_DOCUMENT_ROOT.'/user/class/usergroup.class.php';
+		
+		$TGroup = array();
+		
+		$TUser = $this->getUserFromMission();
+		foreach ($TUser as &$u)
+		{
+			$usergroup=new UserGroup($db);
+			$groupslist = $usergroup->listGroupsForUser($u->id);
+			
+			$TGroup = array_replace($TGroup, $groupslist);
+		}
+		
+		if ($as_array) $TGroup = array_keys($TGroup);
+		
+		return $TGroup;
+	}
 	
 	public function getNomUrl($withpicto=0, $get_params='')
 	{

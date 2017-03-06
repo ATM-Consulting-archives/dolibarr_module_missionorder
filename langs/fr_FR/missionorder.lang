@@ -35,6 +35,8 @@ ConfirmCloneMissionOrder=Êtes-vous sûr de vouloir cloner l'ordre de mission <b
 ToApproveMissionOrder=Envoie pour approbation
 ConfirmToApproveMissionOrder=Êtes-vous sûr de vouloir faire la demande d'approbation de l'ordre de mission <b>%s</b> ?
 SendToBeApprove=Envoyer pour approbation
+ApproveMissionOrder=Approuver mission
+ConfirmApproveMissionOrder=Êtes-vous sûr de vouloir approuver l'ordre de mission <b>%s</b> ?
 
 # FROM OBJECT
 MissionOrderStatusDraft=Brouillon (à valider)
