@@ -9,12 +9,19 @@ missionorderAbout = A propos du module Ordre de Mission
 MissionOrder=Ordre de mission
 MissionCard=Fiche mission
 
+missionOrder_read=Consulter les ordres de missions
+missionOrder_write=Créer/Supprimer les ordres de missions
+missionOrder_read_all=Consulter tout les ordres de missions
+
 # MENU
 MenuMissionOrder=Ordre de Mission
 LeftMenuMissionOrderCreate=Nouvelle mission
 LeftMenuMissionOrderList=Liste
+LeftMenuMissionOrderMineList=Ma Liste
+LeftMenuMissionOrderListWaitingApproval=Liste en attente d'approbation
 
 # LISTE
+ListMissionOrder=Liste des ordres de mission
 DateRefused=Date refus
 DateAccepted=Date acceptation
 ToApprove=À approuver

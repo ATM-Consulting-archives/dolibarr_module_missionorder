@@ -377,7 +377,7 @@ class TMissionOrder extends TObjetStd
 		
 		$TRH_valideur_object = TRH_valideur_object::addLink($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder');
 		
-		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser); // TODO Check nextValideur		
+		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser); // TODO Check nextValideur
 		if (!empty($TValideur))
 		{
 			$to = $this->concatMailFromUser($TValideur);
@@ -543,7 +543,7 @@ class TMissionOrder extends TObjetStd
 		elseif ($mode == 4) return $langs->trans($shortkeytrans).' '.img_picto($langs->trans($keytrans), $statustrans);
 	}
 	
-	public function checkUserAccess($fk_user)
+	public function checkUserAccess(&$PDOdb, $fk_user)
 	{
 		global $conf;
 		

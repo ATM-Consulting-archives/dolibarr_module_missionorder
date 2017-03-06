@@ -9,12 +9,19 @@ missionorderAbout = About Mission Order
 MissionOrder=Mission order
 MissionCard=Mission card
 
+missionOrder_read=Can read a mission order
+missionOrder_write=Can create/delete a mission order
+missionOrder_read_all=Can read all missions order
+
 # MENU
 MenuMissionOrder=Mission Order
 LeftMenuMissionOrderCreate=New mission
 LeftMenuMissionOrderList=List
+LeftMenuMissionOrderMineList=Mine List
+LeftMenuMissionOrderListWaitingApproval=List waiting approval
 
 # LISTE
+ListMissionOrder=List mission order
 DateRefused=Date refused
 DateAccepted=Date accepted
 ToApprove=To approve
