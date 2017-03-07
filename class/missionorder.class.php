@@ -325,7 +325,7 @@ class TMissionOrder extends TObjetStd
 		}
 		else
 		{
-			$txt = $langs->trans('MissionOrderSendMailSuccess', $from, $to);
+			$txt = $langs->trans('MissionOrderSendMailSuccess', $from, str_replace(array('<', '>'), array('', ''), $to));
 			setEventMessages($txt, array());
 			dol_syslog('['.date('YmdHis').'] '.get_class($this).'::sendMail - MESSAGE = '.$txt);
 			return 1;
