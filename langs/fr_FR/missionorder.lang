@@ -13,6 +13,9 @@ missionOrder_read=Consulter les ordres de missions
 missionOrder_write=Créer/Supprimer les ordres de missions
 missionOrder_read_all=Consulter tout les ordres de missions
 
+# ADMIN
+MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE=Autoriser la création d'une note de frais (ndfp) depuis un ordre de mission en attente d'approbation
+
 # MENU
 MenuMissionOrder=Ordre de Mission
 LeftMenuMissionOrderCreate=Nouvelle mission

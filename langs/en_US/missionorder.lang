@@ -13,6 +13,9 @@ missionOrder_read=Can read a mission order
 missionOrder_write=Can create/delete a mission order
 missionOrder_read_all=Can read all missions order
 
+# ADMIN
+MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE=Allow creating an expense report (ndfp) from a mission order with pending approval status
+
 # MENU
 MenuMissionOrder=Mission Order
 LeftMenuMissionOrderCreate=New mission

@@ -188,6 +188,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	$TUsersGroup = $missionorder->getUsersGroup(1);
 	$is_valideur = !empty($conf->valideur->enabled) ? TRH_valideur_groupe::isValideur($PDOdb, $user->id, $TUsersGroup, false, 'missionOrder') : false;
+	$can_create_ndfp = !empty($conf->ndfp->enabled) && $user->rights->ndfp->allactions->create && ($missionorder->status == TMissionOrder::STATUS_ACCEPTED || (!empty($conf->global->MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE) && $missionorder->status == TMissionOrder::STATUS_TO_APPROVE) );
 	
 	$linkback = '<a href="'.dol_buildpath('/missionorder/list.php', 1).'">' . $langs->trans("BackToList") . '</a>';
 	print $TBS->render('tpl/card.tpl.php'
@@ -199,6 +200,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 				,'action' => 'save'
 				,'can_accept' => !empty($conf->valideur->enabled) ? TRH_valideur_groupe::canBeValidateByThisUser($PDOdb, $user, $missionorder, $TUsersGroup, 'missionOrder', $missionorder->entity) : false // Fait tout les tests pour checker s'il peut valider
 				,'can_delete' => in_array($user->id, $TUsersGroup) || $is_valideur
+				,'can_create_ndfp' => $can_create_ndfp
 				,'allowed_user' => in_array($user->id, $TUsersGroup) || $is_valideur
 				,'urlcard' => dol_buildpath('/missionorder/card.php', 1)
 				,'urllist' => dol_buildpath('/missionorder/list.php', 1)
