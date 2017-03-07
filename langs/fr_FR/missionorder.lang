@@ -31,6 +31,7 @@ ToApprove=À approuver
 
 # LINK
 ShowMissionOrder=Afficher mission
+MissionOrderRelated=Ordres de mission liés
 
 # CARD
 ProjectLinked=Projet associé
@@ -47,6 +48,9 @@ ConfirmToApproveMissionOrder=Êtes-vous sûr de vouloir faire la demande d'appro
 SendToBeApprove=Envoyer pour approbation
 ApproveMissionOrder=Approuver mission
 ConfirmApproveMissionOrder=Êtes-vous sûr de vouloir approuver l'ordre de mission <b>%s</b> ?
+CreateNdfp=Créer une note de frais
+CreateNdfpMissionOrder=Créer note de frais
+ConfirmCreateNdfpMissionOrder=Êtes-vous sûr de vouloir créer une note de frais pour l'ordre de mission <b>%s</b> ?
 
 # FROM OBJECT
 MissionOrderStatusDraft=Brouillon (à valider)
@@ -64,6 +68,7 @@ warning_fk_user_fetch_fail=Attention : échec sur le chargement d'un utilisateur
 warning_fk_project_fetch_fail=Attention : échec sur le chargement du projet [id : %d]
 
 error_rowid_in_dict_not_found=(erreur : référence [%d] non trouvée)
+error_try_create_ndfp_but_class_not_found=Erreur : vous essayez de créer une note de frais mais la classe du module est introuvable
 
 # MAIL
 MissionOrderSendMailSuccess=Mails envoyés (from=%s; to=%s)

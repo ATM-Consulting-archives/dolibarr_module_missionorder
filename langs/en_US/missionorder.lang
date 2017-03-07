@@ -31,6 +31,7 @@ ToApprove=To approve
 
 # LINK
 ShowMissionOrder=Show mission
+MissionOrderRelated=Missions order linked
 
 # CARD
 ProjectLinked=Project linked
@@ -45,6 +46,11 @@ ConfirmCloneMissionOrder=Are you sure you want to clone the mission order <b>%s<
 ToApproveMissionOrder=Send a application for approval
 ConfirmToApproveMissionOrder=Are you sure you want to send the application for approval about mission order <b>%s</b> ?
 SendToBeApprove=Send to be approved
+ApproveMissionOrder=Approve mission
+ConfirmApproveMissionOrder=Are you sure you want approve the mission order <b>%s</b> ?
+CreateNdfp=Create expense report
+CreateNdfpMissionOrder=Create expense report
+ConfirmCreateNdfpMissionOrder==Are you sure you want create an expense report for the mission order <b>%s</b> ?
 
 # FROM OBJECT
 MissionOrderStatusDraft=Draft (needs to be validated)
@@ -62,6 +68,7 @@ warning_fk_user_fetch_fail=Warning: failure to load any user [id: %d]
 warning_fk_project_fetch_fail=Warning: failure to load the project [id: %d]
 
 error_rowid_in_dict_not_found=(error: reference [%d] not found)
+error_try_create_ndfp_but_class_not_found=Error: you are trying to create an expense report but the module's class is not found
 
 # MAIL
 MissionOrderSendMailSuccess=Mails sent (from=%s; to=%s)

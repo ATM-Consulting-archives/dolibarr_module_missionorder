@@ -56,6 +56,7 @@ class TMissionOrder extends TObjetStd
 		if (!class_exists('GenericObject')) require_once DOL_DOCUMENT_ROOT.'/core/class/genericobject.class.php';
 		$this->generic = new GenericObject($db);
 		$this->generic->table_element = $this->get_table();
+		$this->generic->element = 'missionorder';
 		
 		$this->date_start = null;
 		$this->date_end = null;
@@ -123,48 +124,20 @@ class TMissionOrder extends TObjetStd
 		return $res;
 	}
 	
-	/**
-	 * TODO à construire : fetchObjectLinked
-	 * Fetch NDFP linked
-	 */
-	public function fetchObjectLinked()
+	public function delete(&$PDOdb)
 	{
-		global $db;
+		global $conf;
 		
-//		$generic = new GenericObject($db);
-		$this->generic->fetchObjectLinked($this->getId(), get_class($this));
+		if (!empty($conf->valideur->enabled)) TRH_valideur_object::deleteChildren($PDOdb, 'missionOrder', $this->getId());
 		
-		/*if (!empty($generic->linkedObjectsIds['project']) && empty($generic->linkedObjects['project']))
-		{
-			foreach ($generic->linkedObjectsIds['project'] as $fk_element_element => $fk_project)
-			{
-				$generic->linkedObjects['project'][$fk_element_element] = new Project($db);
-				$generic->linkedObjects['project'][$fk_element_element]->fetch($fk_project);
-			}
-		}*/
+		$this->generic->deleteObjectLinked();
 		
-		//$this->generic = &$generic;
+		parent::delete($PDOdb);
 	}
 	
-	/**
-	 * TODO à construire : addNdfLink
-	 */
-	public function addNdfLink(&$ndfp)
+	public function fetchObjectLinked()
 	{
-		global $db;
-		
-		if ($ndfp->getId())
-		{
-			//if (!empty($this->project)) $this->project->deleteObjectLinked($this->getId(), 'TMissionOrder');
-
-			// TODO insert into llx_element_element 
-			// fk_source = $this->getId()
-			// sourcetype = get_class($this)
-			// fk_target = $ndfp->getId()
-			// targettype = get_class($ndfp)
-			
-		}
-		
+		$this->generic->fetchObjectLinked($this->getId(), get_class($this));
 	}
 
 	public function setDraft(&$PDOdb)

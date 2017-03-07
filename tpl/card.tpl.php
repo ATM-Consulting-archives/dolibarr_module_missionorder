@@ -105,6 +105,10 @@
 			[onshow;block=end]
 		[onshow;block=end]
 		
+		[onshow;block=begin;when [view.can_create_ndfp]=1]
+		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=create_ndfp" class="butAction">[langs.transnoentities(CreateNdfp)]</a></div>
+		[onshow;block=end]
+		
 		<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=clone" class="butAction">[langs.transnoentities(ToClone)]</a></div>
 		
 		[onshow;block=begin;when [missionorder.status]-+[TMissionOrder.STATUS_TO_APPROVE]]

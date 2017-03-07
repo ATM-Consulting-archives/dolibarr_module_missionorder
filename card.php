@@ -131,6 +131,40 @@ if (empty($reshook))
 			
 			header('Location: '.dol_buildpath('/missionorder/card.php', 1).'?id='.$missionorder->getId());
 			exit;
+		case 'confirm_create_ndfp':
+			dol_include_once('/ndfp/class/ndfp.class.php');
+			if (!class_exists('Ndfp'))
+			{
+				setEventMessages($langs->trans('error_try_create_ndfp_but_class_not_found'), array(), 'errors');
+			}
+			else
+			{
+				$ndfp = new Ndfp($db);
+				
+				$ndfp->ref = '(PROV)';
+				$ndfp->dates = $missionorder->date_start;
+				$ndfp->datee = $missionorder->date_end;
+				$ndfp->type = 'NORMAL'; // ou FORMATION
+				$ndfp->fk_project = $missionorder->fk_project;
+				
+				$ndfp->fk_user = $user->id;
+				if ($ndfp->create($user) > 0)
+				{
+					$ndfp->add_object_linked($missionorder->generic->element, $missionorder->getId());
+					header('Location: '.dol_buildpath('/ndfp/ndfp.php', 1).'?id='.$ndfp->id);
+					exit;
+				}
+				else
+				{
+					setEventMessages($ndfp->error, array(), 'errors');
+				}
+			}
+			
+			break;
+		case 'dellink':
+			$missionorder->generic->deleteObjectLinked(null, '', null, '', GETPOST('dellinkid'));
+			header('Location: '.dol_buildpath('/missionorder/card.php', 1).'?id='.$missionorder->getId());
+			exit;
 			break;
 	}
 }
@@ -233,14 +267,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	if ($mode == 'edit') echo $formcore->end_form();
 	
-//	var_dump('sdg', count($missionorder->generic->linkedObjects));
-	// Show NDFP link // TODO vérifier si un trigger existe sur le delete d'une NDFP
 	$somethingshown = $form->showLinkedObjectBlock($missionorder->generic);
 	
-//	global $hookmanager;
-//	$hookmanager->initHooks(array('commonobject'));
-//	$parameters=array();
-//	$reshook=$hookmanager->executeHooks('showLinkedObjectBlock',$parameters,$missionorder->generic,$action); 
-		
 	llxFooter();
 }
