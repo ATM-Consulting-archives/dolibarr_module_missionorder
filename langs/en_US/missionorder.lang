@@ -28,6 +28,7 @@ ListMissionOrder=List mission order
 DateRefused=Date refused
 DateAccepted=Date accepted
 ToApprove=To approve
+NoMissionOrder=No mission order found
 
 # LINK
 ShowMissionOrder=Show mission
