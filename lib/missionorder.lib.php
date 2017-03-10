@@ -227,8 +227,8 @@ function getReasonOrCarriageView(&$missionorder, &$form, $mode='view', $type='re
 		// Show multi checkbox + input text "autre"
 		$i=0;
 		foreach ($TChoice as &$choice)
-		{var_dump($TReasonId[$choice->rowid]);
-			$res .= '<span style="display:inline-block;" class="block minwidth200"><input type="checkbox" name="'.$TChildren.'['.$choice->rowid.']" value="'.$choice->rowid.'" '.(!empty($TReasonId[$choice->rowid]) ? 'checked="checked"' : '').' />&nbsp;'.$choice->label.'</span>';
+		{
+			$res .= '<span style="display:inline-block;" class="block minwidth200"><input type="checkbox" name="'.$TChildren.'['.$choice->rowid.']" value="'.$choice->rowid.'" '.(!empty($TChildrenByIdDict[$choice->rowid]) ? 'checked="checked"' : '').' />&nbsp;'.$choice->label.'</span>';
 			if ($i > 0 && $i&1) $res .= '<br />';
 			$i++;
 		}
