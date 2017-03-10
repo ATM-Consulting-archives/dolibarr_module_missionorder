@@ -52,6 +52,7 @@ ConfirmApproveMissionOrder=Êtes-vous sûr de vouloir approuver l'ordre de missi
 CreateNdfp=Créer une note de frais
 CreateNdfpMissionOrder=Créer note de frais
 ConfirmCreateNdfpMissionOrder=Êtes-vous sûr de vouloir créer une note de frais pour l'ordre de mission <b>%s</b> ?
+Accept=Accepter
 
 # FROM OBJECT
 MissionOrderStatusDraft=Brouillon (à valider)

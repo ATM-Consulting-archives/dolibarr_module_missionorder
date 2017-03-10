@@ -52,6 +52,7 @@ ConfirmApproveMissionOrder=Are you sure you want approve the mission order <b>%s
 CreateNdfp=Create expense report
 CreateNdfpMissionOrder=Create expense report
 ConfirmCreateNdfpMissionOrder==Are you sure you want create an expense report for the mission order <b>%s</b> ?
+Accept=Accept
 
 # FROM OBJECT
 MissionOrderStatusDraft=Draft (needs to be validated)
