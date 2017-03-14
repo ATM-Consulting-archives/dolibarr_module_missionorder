@@ -29,6 +29,7 @@ DateRefused=Date refus
 DateAccepted=Date acceptation
 ToApprove=À approuver
 NoMissionOrder=Aucun ordre de mission
+Accepted=Acceptée
 
 # LINK
 ShowMissionOrder=Afficher mission
@@ -53,6 +54,7 @@ CreateNdfp=Créer une note de frais
 CreateNdfpMissionOrder=Créer note de frais
 ConfirmCreateNdfpMissionOrder=Êtes-vous sûr de vouloir créer une note de frais pour l'ordre de mission <b>%s</b> ?
 Accept=Accepter
+Reopen=Rouvrir
 
 # FROM OBJECT
 MissionOrderStatusDraft=Brouillon (à valider)

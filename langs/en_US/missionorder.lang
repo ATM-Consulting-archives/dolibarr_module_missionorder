@@ -29,6 +29,8 @@ DateRefused=Date refused
 DateAccepted=Date accepted
 ToApprove=To approve
 NoMissionOrder=No mission order found
+Accepted=Acceptée
+Reopen=Reopen
 
 # LINK
 ShowMissionOrder=Show mission
