@@ -146,6 +146,7 @@ if (empty($reshook))
 				$ndfp->datee = $missionorder->date_end;
 				$ndfp->type = 'NORMAL'; // ou FORMATION
 				$ndfp->fk_project = $missionorder->fk_project;
+				$ndfp->description = $missionorder->label;
 				
 				$ndfp->fk_user = $user->id;
 				if ($ndfp->create($user) > 0)
