@@ -1,5 +1,16 @@
 <?php
 
+if (!class_exists('TObjetStd'))
+{
+	/**
+	 * Needed if $form->showLinkedObjectBlock() is call
+	 */
+	define('INC_FROM_DOLIBARR', true);
+	require_once dirname(__FILE__).'/../config.php';
+}
+
+
+
 class TMissionOrder extends TObjetStd
 {
 	/**
@@ -529,6 +540,26 @@ class TMissionOrder extends TObjetStd
 		}
 		
 		return false;
+	}
+}
+
+/**
+ * Class needed if link exists with dolibarr object from element_element and call from $form->showLinkedObjectBlock()
+ */
+class MissionOrder extends TMissionOrder
+{
+	private $PDOdb;
+	
+	public function __construct()
+	{
+		parent::__construct();
+		
+		$this->PDOdb = new TPDOdb;
+	}
+	
+	function fetch($id)
+	{
+		return $this->load($this->PDOdb, $id);
 	}
 }
 
