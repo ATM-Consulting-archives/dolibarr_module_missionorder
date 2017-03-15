@@ -7,7 +7,7 @@ dol_include_once('/missionorder/class/missionorder.class.php');
 dol_include_once('/missionorder/lib/missionorder.lib.php');
 if (!empty($conf->valideur->enabled)) dol_include_once('/valideur/class/valideur.class.php');
 
-if(empty($user->rights->missionorder->read)) accessforbidden();
+if (empty($user->rights->missionorder->read)) accessforbidden();
 
 $langs->load('missionorder@missionorder');
 
@@ -268,7 +268,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	if ($mode == 'edit') echo $formcore->end_form();
 	
-	$somethingshown = $form->showLinkedObjectBlock($missionorder->generic);
+	if ($mode == 'view') $somethingshown = $form->showLinkedObjectBlock($missionorder->generic);
 	
 	llxFooter();
 }
