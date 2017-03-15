@@ -230,6 +230,18 @@ class TMissionOrder extends TObjetStd
 		return $this->TUser;
 	}
 	
+	public function checkUserIsIntoMission(&$user)
+	{
+		$TUser = $this->getUserFromMission();
+		
+		foreach ($TUser as &$u)
+		{
+			if ($u->id == $user->id) return true;
+		}
+		
+		return false;
+	}
+	
 	public function setToApprove(&$PDOdb)
 	{
 		$this->status = self::STATUS_TO_APPROVE;
