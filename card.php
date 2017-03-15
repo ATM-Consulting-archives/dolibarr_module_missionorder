@@ -233,7 +233,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 			,'view' => array(
 				'mode' => $mode
 				,'action' => 'save'
-				,'can_accept' => !empty($conf->valideur->enabled) ? TRH_valideur_groupe::canBeValidateByThisUser($PDOdb, $user, $missionorder, $TUsersGroup, 'missionOrder', $missionorder->entity) : false // Fait tout les tests pour checker s'il peut valider
+				,'can_accept' => !empty($conf->valideur->enabled) ? ( $missionorder->status == TMissionOrder::STATUS_TO_APPROVE && TRH_valideur_groupe::canBeValidateByThisUser($PDOdb, $user, $missionorder, $TUsersGroup, 'missionOrder', $missionorder->entity) ) : false // Fait tout les tests pour checker s'il peut valider
 				,'can_delete' => in_array($user->id, $TUsersGroup) || $is_valideur
 				,'can_create_ndfp' => $can_create_ndfp
 				,'allowed_user' => in_array($user->id, $TUsersGroup) || $is_valideur

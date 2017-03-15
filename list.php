@@ -2,6 +2,7 @@
 
 require 'config.php';
 dol_include_once('/missionorder/class/missionorder.class.php');
+if (!empty($conf->valideur->enabled) && !empty($user->rights->missionorder->all->approve)) dol_include_once ('/valideur/class/valideur.class.php');
 
 if(empty($user->rights->missionorder->read)) accessforbidden();
 
@@ -10,6 +11,9 @@ $langs->load('abricot@abricot');
 
 $hookmanager->initHooks(array('missionorderlist'));
 
+$PDOdbGlobal = new TPDOdb;
+$line_approve_counter = 0;
+
 /*
  * Actions
  */
@@ -17,6 +21,36 @@ $hookmanager->initHooks(array('missionorderlist'));
 $parameters=array();
 $reshook=$hookmanager->executeHooks('doActions',$parameters);    // Note that $action and $object may have been modified by some hooks
 if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+
+if (empty($reshook))
+{
+	if (GETPOST('approve_all_checked') && !empty($conf->valideur->enabled) && !empty($user->rights->missionorder->all->approve))
+	{
+		
+		$TMissionOrderId = GETPOST('TMissionOrderId', 'array');
+		foreach ($TMissionOrderId as $id)
+		{
+			if (empty($id)) continue;
+			
+			$missionorder = new TMissionOrder;
+			$missionorder->load($PDOdbGlobal, $id);
+
+			if ($missionorder->status != TMissionOrder::STATUS_TO_APPROVE) continue;
+
+			$TUsersGroup = $missionorder->getUsersGroup(1);
+			if (TRH_valideur_groupe::canBeValidateByThisUser($PDOdbGlobal, $user, $missionorder, $TUsersGroup, 'missionOrder', $missionorder->entity))
+			{
+				$missionorder->addApprobation($PDOdbGlobal);
+			}
+		}
+		
+		$get = urldecode($_SERVER['QUERY_STRING']);
+		$get = preg_replace('/&?TMissionOrderId\[\]=\d*|&?approve\_all\_checked=[a-zA-Z\ ]*/', '', $get);
+		
+		header('Location: '.$_SERVER['PHP_SELF'].'?'.$get);
+		exit;
+	}
+}
 
 
 /*
@@ -27,7 +61,7 @@ _list();
 
 function _list()
 {
-	global $db,$langs,$user,$conf,$hookmanager;
+	global $db,$langs,$user,$conf,$hookmanager, $line_approve_counter;
 	
 	llxHeader('',$langs->trans('listMissionOrder'),'','');
 	
@@ -90,9 +124,9 @@ function _list()
 	
 	$sql.= ' GROUP BY mo.rowid';
 	
+	$PDOdb = new TPDOdb;
 	$missionorder = new TMissionOrder;
 	
-	$PDOdb = new TPDOdb;
 	$formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_mission_order', 'GET');
 	
 	$nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
@@ -145,6 +179,7 @@ function _list()
 			,'date_accept' => $langs->trans('DateAccepted')
 			,'status' => $langs->trans('Status')
 			,'TUserId' => $langs->trans('UsersLinked')
+			,'action' => $langs->trans('Action')
 		)
 		,'eval'=>array(
 			'ref' => 'TMissionOrder::getStaticNomUrl(@rowid@, 1)'
@@ -155,12 +190,25 @@ function _list()
 			,'date_accept' => '_formatDate("@val@")'
 			,'status' => 'TMissionOrder::LibStatut(@val@, 4)'
 			,'TUserId' => '_getUsersLink("@val@")'
+			,'action' => '_isValideur("@rowid@")'
 		)
 	));
 	
 	$parameters=array('sql'=>$sql);
 	$reshook=$hookmanager->executeHooks('printFieldListFooter', $parameters, $missionorder);    // Note that $action and $object may have been modified by hook
 	print $hookmanager->resPrint;
+	
+	
+	if (!empty($conf->valideur->enabled) && !empty($user->rights->missionorder->all->approve))
+	{
+		echo '<div class="tabsAction">
+			<div class="inline-block divButAction">
+				<input name="approve_all_checked" type="submit" value="'.$langs->trans('ApproveAllChecked').'" class="button">
+			</div>
+		</div>';
+	}
+	
+	$formcore->end_form();
 	
 	llxFooter('');
 }
@@ -208,4 +256,24 @@ function _getUsersLink($fk_user_string)
 	}
 	
 	return $res;
+}
+
+function _isValideur($fk_mission_order)
+{
+	global $PDOdbGlobal,$user,$line_approve_counter,$conf;
+	
+	if (empty($conf->valideur->enabled) || empty($user->rights->missionorder->all->approve)) return '';
+	
+	$missionorder = new TMissionOrder;
+	$missionorder->load($PDOdbGlobal, $fk_mission_order);
+	
+	if ($missionorder->status != TMissionOrder::STATUS_TO_APPROVE) return '';
+	
+	$TUsersGroup = $missionorder->getUsersGroup(1);
+	if (TRH_valideur_groupe::canBeValidateByThisUser($PDOdbGlobal, $user, $missionorder, $TUsersGroup, 'missionOrder', $missionorder->entity))
+	{
+		$line_approve_counter++;
+		return '<input type="checkbox" name="TMissionOrderId[]" value="'.$fk_mission_order.'" />';
+	}
+	else return '';
 }

@@ -167,8 +167,8 @@ class modmissionorder extends DolibarrModules
 				,MAIN_DB_PREFIX.'c_mission_order_carriage'
 			), // List of tables we want to see into dictonnary editor
             'tablib'=>array(
-				'DictMissionOrderReason'
-				,'DictMissionOrderCarriage'
+				$langs->trans('DictMissionOrderReason')
+				,$langs->trans('DictMissionOrderCarriage')
 			), // Label of tables
             'tabsql'=>array(
 				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_mission_order_reason as f'
