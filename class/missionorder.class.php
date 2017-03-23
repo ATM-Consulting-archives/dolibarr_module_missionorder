@@ -357,7 +357,7 @@ class TMissionOrder extends TObjetStd
 	
 	public function addApprobation(&$PDOdb)
 	{
-		global $user;
+		global $user,$conf;
 		
 		if (TRH_valideur_object::alreadyAcceptedByThisUser($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder')) return 0;
 		
@@ -367,7 +367,9 @@ class TMissionOrder extends TObjetStd
 		$to = $this->concatMailFromUser($TUser);
 		
 		// Mail du valideur vers les users de l'OM
-		$this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectNewApproval', '/missionorder/tpl/mail.mission.newapproval.tpl.php');
+		if (empty($conf->global->MISSION_ORDER_SEND_MAIL_LIGHT_TO_CREATOR)) {
+			$this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectNewApproval', '/missionorder/tpl/mail.mission.newapproval.tpl.php');
+		}
 		
 		$PDOdb->beginTransaction();
 		

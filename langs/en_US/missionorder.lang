@@ -18,6 +18,7 @@ DictMissionOrderCarriage=Carriage of missions order
 
 # ADMIN
 MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE=Allow creating an expense report (ndfp) from a mission order with pending approval status
+MISSION_ORDER_SEND_MAIL_LIGHT_TO_CREATOR=Send mail to creators in light mode (1 on to approve action, 1 on set accepted)
 
 # MENU
 MenuMissionOrder=Mission Order

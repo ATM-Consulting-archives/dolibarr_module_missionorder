@@ -18,6 +18,7 @@ DictMissionOrderCarriage=Transport des ordres de mission
 
 # ADMIN
 MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE=Autoriser la création d'une note de frais (ndfp) depuis un ordre de mission en attente d'approbation
+MISSION_ORDER_SEND_MAIL_LIGHT_TO_CREATOR=Envoi en mode light des mails aux créateurs de l'ordre de mission (1 mail lors de la demande d'approbation, 1 mail lorsque c'est accepté)
 
 # MENU
 MenuMissionOrder=Ordre de Mission
