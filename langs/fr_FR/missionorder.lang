@@ -59,6 +59,7 @@ CreateNdfpMissionOrder=Créer note de frais
 ConfirmCreateNdfpMissionOrder=Êtes-vous sûr de vouloir créer une note de frais pour l'ordre de mission <b>%s</b> ?
 Accept=Accepter
 Reopen=Rouvrir
+NewMissionOrder=Nouvel ordre de mission
 
 # FROM OBJECT
 MissionOrderStatusDraft=Brouillon (à valider)

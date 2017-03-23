@@ -59,6 +59,7 @@ CreateNdfpMissionOrder=Create expense report
 ConfirmCreateNdfpMissionOrder==Are you sure you want create an expense report for the mission order <b>%s</b> ?
 Accept=Accept
 Reopen=Reopen
+NewMissionOrder=New mission order
 
 # FROM OBJECT
 MissionOrderStatusDraft=Draft (needs to be validated)
