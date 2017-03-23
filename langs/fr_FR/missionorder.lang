@@ -55,10 +55,13 @@ ConfirmToApproveMissionOrder=Êtes-vous sûr de vouloir faire la demande d'appro
 SendToBeApprove=Envoyer pour approbation
 ApproveMissionOrder=Approuver mission
 ConfirmApproveMissionOrder=Êtes-vous sûr de vouloir approuver l'ordre de mission <b>%s</b> ?
+RefuseMissionOrder=Refuser mission
+ConfirmRefuseMissionOrder=Êtes-vous sûr de vouloir refuser l'ordre de mission <b>%s</b> ?
 CreateNdfp=Créer une note de frais
 CreateNdfpMissionOrder=Créer note de frais
 ConfirmCreateNdfpMissionOrder=Êtes-vous sûr de vouloir créer une note de frais pour l'ordre de mission <b>%s</b> ?
 Accept=Accepter
+Refuse=Refuser
 Reopen=Rouvrir
 NewMissionOrder=Nouvel ordre de mission
 

@@ -131,6 +131,11 @@ if (empty($reshook))
 			
 			header('Location: '.dol_buildpath('/missionorder/card.php', 1).'?id='.$missionorder->getId());
 			exit;
+		case 'confirm_refuse':
+			$missionorder->setRefused($PDOdb);
+			
+			header('Location: '.dol_buildpath('/missionorder/card.php', 1).'?id='.$missionorder->getId());
+			exit;
 		case 'confirm_create_ndfp':
 			dol_include_once('/ndfp/class/ndfp.class.php');
 			if (!class_exists('Ndfp'))

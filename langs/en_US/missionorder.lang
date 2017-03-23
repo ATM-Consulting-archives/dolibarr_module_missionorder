@@ -55,10 +55,13 @@ ConfirmToApproveMissionOrder=Are you sure you want to send the application for a
 SendToBeApprove=Send to be approved
 ApproveMissionOrder=Approve mission
 ConfirmApproveMissionOrder=Are you sure you want approve the mission order <b>%s</b> ?
+RefuseMissionOrder=Refuse mission
+ConfirmRefuseMissionOrder=Are you sure you want refuse the mission order <b>%s</b> ?
 CreateNdfp=Create expense report
 CreateNdfpMissionOrder=Create expense report
 ConfirmCreateNdfpMissionOrder==Are you sure you want create an expense report for the mission order <b>%s</b> ?
 Accept=Accept
+Refuse=Refuse
 Reopen=Reopen
 NewMissionOrder=New mission order
 

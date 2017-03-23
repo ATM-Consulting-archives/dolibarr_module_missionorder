@@ -311,6 +311,11 @@ function getFormConfirm(&$PDOdb, &$form, &$missionorder, $action)
 		$text = $langs->trans('ConfirmApproveMissionOrder', $missionorder->ref);
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('ApproveMissionOrder'), $text, 'confirm_approve', '', 0, 1);
 	}
+	elseif ($action == 'refuse' && !empty($conf->valideur->enabled) && TRH_valideur_groupe::isValideur($PDOdb, $user->id, $missionorder->getUsersGroup(1), false, 'missionOrder') )
+	{
+		$text = $langs->trans('ConfirmRefuseMissionOrder', $missionorder->ref);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('RefuseMissionOrder'), $text, 'confirm_refuse', '', 0, 1);
+	}
 	elseif ($action == 'create_ndfp' && !empty($conf->ndfp->enabled) && $user->rights->ndfp->allactions->create && ($missionorder->status == TMissionOrder::STATUS_ACCEPTED || (!empty($conf->global->MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE) && $missionorder->status == TMissionOrder::STATUS_TO_APPROVE) ) )
 	{
 		$text = $langs->trans('ConfirmCreateNdfpMissionOrder', $missionorder->ref);

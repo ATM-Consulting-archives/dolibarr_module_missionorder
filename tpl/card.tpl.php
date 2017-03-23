@@ -102,6 +102,7 @@
 		[onshow;block=begin;when [missionorder.status]=[TMissionOrder.STATUS_TO_APPROVE]]
 			[onshow;block=begin;when [view.can_accept]=1]
 			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=approve" class="butAction">[langs.transnoentities(Accept)]</a></div>
+			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=refuse" class="butActionDelete">[langs.transnoentities(Refuse)]</a></div>
 			[onshow;block=end]
 		[onshow;block=end]
 		
