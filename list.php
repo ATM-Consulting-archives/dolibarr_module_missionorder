@@ -273,7 +273,7 @@ function _isValideur($fk_mission_order)
 	if (TRH_valideur_groupe::canBeValidateByThisUser($PDOdbGlobal, $user, $missionorder, $TUsersGroup, 'missionOrder', $missionorder->entity))
 	{
 		$line_approve_counter++;
-		return '<input type="checkbox" name="TMissionOrderId[]" value="'.$fk_mission_order.'" />';
+		return '<input type="checkbox" name="TMissionOrderId[]" value="'.$fk_mission_order.'" checked="checked" />';
 	}
 	else return '';
 }
