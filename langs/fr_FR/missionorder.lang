@@ -31,7 +31,7 @@ LeftMenuMissionOrderListWaitingApproval=Liste en attente d'approbation
 ListMissionOrder=Liste des ordres de mission
 DateRefused=Date refus
 DateAccepted=Date acceptation
-ToApprove=À approuver
+ToApprove=Attente d'approbation
 NoMissionOrder=Aucun ordre de mission
 Accepted=Acceptée
 ApproveAllChecked=Accepter les ordres de mission
@@ -64,7 +64,7 @@ NewMissionOrder=Nouvel ordre de mission
 
 # FROM OBJECT
 MissionOrderStatusDraft=Brouillon (à valider)
-MissionOrderStatusValidated=Validée (à approuver)
+MissionOrderStatusValidated=Validée
 MissionOrderStatusToApprove=En cours d'approbation (en attente)
 MissionOrderStatusRefused=Refusée (fermée)
 MissionOrderStatusAccepted=Acceptée (fermée)

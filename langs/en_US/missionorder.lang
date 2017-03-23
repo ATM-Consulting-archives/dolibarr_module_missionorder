@@ -64,7 +64,7 @@ NewMissionOrder=New mission order
 
 # FROM OBJECT
 MissionOrderStatusDraft=Draft (needs to be validated)
-MissionOrderStatusValidated=Validated (needs to be approved)
+MissionOrderStatusValidated=Validated
 MissionOrderStatusToApprove=Pending approval (waiting)
 MissionOrderStatusRefused=Refused (closed)
 MissionOrderStatusAccepted=Accepted (closed)
