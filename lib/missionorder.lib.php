@@ -288,7 +288,7 @@ function getFormConfirm(&$PDOdb, &$form, &$missionorder, $action)
 	
 	if ($action == 'validate' && !empty($user->rights->missionorder->write))
 	{
-		$text = $langs->trans('ConfirmValidateMissionOrder', $missionorder->ref);
+		$text = empty($conf->global->MISSION_ORDER_VALIDATE_ACTION_FOR_APPROVAL) ? $langs->trans('ConfirmValidateMissionOrder', $missionorder->ref) : $langs->trans('ConfirmValidateMissionOrderAndSendToBeApprove', $missionorder->ref);
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $missionorder->id, $langs->trans('ValidateMissionOrder'), $text, 'confirm_validate', '', 0, 1);
 	}
 	elseif ($action == 'delete' && !empty($user->rights->missionorder->write))

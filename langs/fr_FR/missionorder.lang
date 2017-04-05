@@ -19,6 +19,7 @@ DictMissionOrderCarriage=Transport des ordres de mission
 # ADMIN
 MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE=Autoriser la création d'une note de frais (ndfp) depuis un ordre de mission en attente d'approbation
 MISSION_ORDER_SEND_MAIL_LIGHT_TO_CREATOR=Envoi en mode light des mails aux créateurs de l'ordre de mission (1 mail lors de la demande d'approbation, 1 mail lorsque c'est accepté)
+MISSION_ORDER_VALIDATE_ACTION_FOR_APPROVAL=Coupler l'action valider avec l'envoi pour approbation
 
 # MENU
 MenuMissionOrder=Ordre de Mission
@@ -46,6 +47,7 @@ UsersLinked=Utilisateur(s) associé(s)
 Carriage=Transport
 ValidateMissionOrder=Valider mission
 ConfirmValidateMissionOrder=Êtes-vous sûr de vouloir valider cette ordre de mission sous la référence <b>%s</b> ?
+ConfirmValidateMissionOrderAndSendToBeApprove=Êtes-vous sûr de vouloir valider et envoyer pour approbation cette ordre de mission sous la référence <b>%s</b> ?
 DeleteMissionOrder=Supprimer mission
 ConfirmDeleteMissionOrder=Êtes-vous sûr de vouloir effacer cette ordre de mission ?
 CloneMissionOrder=Cloner mission
@@ -64,6 +66,8 @@ Accept=Accepter
 Refuse=Refuser
 Reopen=Rouvrir
 NewMissionOrder=Nouvel ordre de mission
+ValidateAndSendToBeApprove=Valider et envoyer pour approbation
+NextValideur=Prochain valideur
 
 # FROM OBJECT
 MissionOrderStatusDraft=Brouillon (à valider)

@@ -72,7 +72,8 @@ function _list()
 	$sql = 'SELECT mo.rowid, mo.ref, mo.label, mo.location, mo.fk_project, mo.date_start, mo.date_end, mo.date_refuse, mo.date_accept
 					, mo.status, GROUP_CONCAT(mou.fk_user SEPARATOR \',\') as TUserId';
 	
-	// TODO il faut aussi check si l'user à le droit d'accepter des OM
+	if (!empty($conf->valideur->enabled)) $sql.= ', \'\' as nextValideurs';
+	
 	if (!empty($user->rights->missionorder->all->approve)) $sql .= ', \'\' as action';
 	
 	$sql.= '
@@ -180,6 +181,7 @@ function _list()
 			,'status' => $langs->trans('Status')
 			,'TUserId' => $langs->trans('UsersLinked')
 			,'action' => $langs->trans('Action')
+			,'nextValideurs' => $langs->trans('NextValideur')
 		)
 		,'eval'=>array(
 			'ref' => 'TMissionOrder::getStaticNomUrl(@rowid@, 1)'
@@ -191,6 +193,7 @@ function _list()
 			,'status' => 'TMissionOrder::LibStatut(@val@, 4)'
 			,'TUserId' => '_getUsersLink("@val@")'
 			,'action' => '_isValideur("@rowid@")'
+			,'nextValideurs' => '_getNextValideur(@rowid@)'
 		)
 	));
 	
@@ -276,4 +279,28 @@ function _isValideur($fk_mission_order)
 		return '<input type="checkbox" name="TMissionOrderId[]" value="'.$fk_mission_order.'" checked="checked" />';
 	}
 	else return '';
+}
+
+function _getNextValideur($fk_mission_order)
+{
+	global $PDOdbGlobal,$conf;
+	
+	$res = '';
+	
+	if (!empty($conf->valideur->enabled))
+	{
+		$missionorder = new TMissionOrder;
+		$missionorder->load($PDOdbGlobal, $fk_mission_order);
+		
+		if ($missionorder->status == TMissionOrder::STATUS_TO_APPROVE)
+		{
+			$TNextValideur =  $missionorder->getNextTValideur($PDOdbGlobal);
+			foreach ($TNextValideur as $u)
+			{
+				$res .= $u->getNomUrl(1).'&nbsp;';
+			}
+		}
+	}
+	
+	return $res;
 }

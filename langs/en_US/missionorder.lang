@@ -19,6 +19,7 @@ DictMissionOrderCarriage=Carriage of missions order
 # ADMIN
 MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE=Allow creating an expense report (ndfp) from a mission order with pending approval status
 MISSION_ORDER_SEND_MAIL_LIGHT_TO_CREATOR=Send mail to creators in light mode (1 on to approve action, 1 on set accepted)
+MISSION_ORDER_VALIDATE_ACTION_FOR_APPROVAL=Coupling the action validate with send the application for approval
 
 # MENU
 MenuMissionOrder=Mission Order
@@ -46,6 +47,7 @@ UsersLinked=User(s) linked
 Carriage=Carriage
 ValidateMissionOrder=Validate mission
 ConfirmValidateMissionOrder=Are you sure you want to validate this mission order under name <b>%s</b> ?
+ConfirmValidateMissionOrderAndSendToBeApprove=Are you sure you want to validate and send the application for approval this mission order under name <b>%s</b> ?
 DeleteMissionOrder=Delete mission
 ConfirmDeleteMissionOrder=Are you sure you want to delete this mission order ?
 CloneMissionOrder=Clone mission
@@ -64,6 +66,8 @@ Accept=Accept
 Refuse=Refuse
 Reopen=Reopen
 NewMissionOrder=New mission order
+ValidateAndSendToBeApprove=Validate and send to be approved
+NextValideur=Next validator
 
 # FROM OBJECT
 MissionOrderStatusDraft=Draft (needs to be validated)

@@ -56,6 +56,13 @@
 				<td width="25%">[langs.transnoentities(Note)]</td>
 				<td>[view.showNote;strconv=no]</td>
 			</tr>
+			
+			[onshow;block=begin;when [TNextValideur.#]+-0]
+			<tr class="next_valideurs">
+				<td width="25%">[langs.transnoentities(NextValideur)]</td>
+				<td><p>[TNextValideur;block=p][TNextValideur.getNomUrl(1);strconv=no]</p></td>
+			</tr>
+			[onshow;block=end]
 		</tbody>
 	</table>
 
@@ -84,7 +91,7 @@
 	
 		[onshow;block=begin;when [missionorder.status]=[TMissionOrder.STATUS_DRAFT]]
 			[onshow;block=begin;when [view.allowed_user]=1]
-			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=validate" class="butAction">[langs.transnoentities(Validate)]</a></div>
+			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=validate" class="butAction">[onload.conf.global.MISSION_ORDER_VALIDATE_ACTION_FOR_APPROVAL;if [val]=1;then [langs.transnoentities(ValidateAndSendToBeApprove)];else [langs.transnoentities(Validate)];noerr]</a></div>
 			<div class="inline-block divButAction"><a href="[view.urlcard]?id=[missionorder.getId()]&action=edit" class="butAction">[langs.transnoentities(Modify)]</a></div>
 			[onshow;block=end]
 		[onshow;block=end]

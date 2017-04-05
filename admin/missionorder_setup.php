@@ -145,6 +145,18 @@ print ajax_constantonoff('MISSION_ORDER_SEND_MAIL_LIGHT_TO_CREATOR');
 print '</form>';
 print '</td></tr>';
 
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("MISSION_ORDER_VALIDATE_ACTION_FOR_APPROVAL").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="center" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">'; // Keep form because ajax_constantonoff return single link with <a> if the js is disabled
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_MISSION_ORDER_VALIDATE_ACTION_FOR_APPROVAL">';
+print ajax_constantonoff('MISSION_ORDER_VALIDATE_ACTION_FOR_APPROVAL');
+print '</form>';
+print '</td></tr>';
+
 print '</table>';
 
 llxFooter();

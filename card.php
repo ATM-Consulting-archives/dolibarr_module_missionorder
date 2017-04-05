@@ -230,9 +230,13 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	$is_valideur = !empty($conf->valideur->enabled) ? TRH_valideur_groupe::isValideur($PDOdb, $user->id, $TUsersGroup, false, 'missionOrder') : false;
 	$can_create_ndfp = !empty($conf->ndfp->enabled) && $user->rights->ndfp->allactions->create && ($missionorder->status == TMissionOrder::STATUS_ACCEPTED || (!empty($conf->global->MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE) && $missionorder->status == TMissionOrder::STATUS_TO_APPROVE) );
 	
+	$TNextValideur = !empty($conf->valideur->enabled) ? $missionorder->getNextTValideur($PDOdb) : array();
+	
 	$linkback = '<a href="'.dol_buildpath('/missionorder/list.php', 1).'">' . $langs->trans("BackToList") . '</a>';
 	print $TBS->render('tpl/card.tpl.php'
-		,array() // Block
+		,array(
+			'TNextValideur' => $TNextValideur
+		) // Block
 		,array(
 			'missionorder'=>$missionorder
 			,'view' => array(

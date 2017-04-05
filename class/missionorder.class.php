@@ -166,13 +166,19 @@ class TMissionOrder extends TObjetStd
 	
 	public function setValid(&$PDOdb, &$user)
 	{
+		global $conf;
+		
 		$this->ref = $this->getNumero();
 		
 		$this->date_valid = dol_now();
 		$this->status = self::STATUS_VALIDATED;
 		$this->fk_user_valid = $user->id;
 		
-		return parent::save($PDOdb);
+		$res = parent::save($PDOdb);
+		
+		if (!empty($conf->global->MISSION_ORDER_VALIDATE_ACTION_FOR_APPROVAL) && $res) $res = $this->setToApprove($PDOdb);
+		
+		return $res;
 	}
 	
 	private function getTValideurFromTUser(&$PDOdb, &$TUser)
@@ -188,6 +194,11 @@ class TMissionOrder extends TObjetStd
 		}
 		
 		return $TValideur;
+	}
+	
+	public function getNextTValideur(&$PDOdb)
+	{
+		return $this->getTValideurFromTUser($PDOdb, $this->getUserFromMission());
 	}
 	
 	private function concatMailFromUser(&$TUser)
