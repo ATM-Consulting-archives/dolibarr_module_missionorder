@@ -556,6 +556,8 @@ class TMissionOrder extends TObjetStd
 	{
 		global $conf;
 		
+		if (empty($conf->valideur->enabled)) return true;
+		
 		if (!$this->getId()) return true;
 		if (!empty($conf->valideur->enabled) && TRH_valideur_groupe::isValideur($PDOdb, $fk_user, $this->getUsersGroup(1), false, 'missionOrder'))  return true;
 		
