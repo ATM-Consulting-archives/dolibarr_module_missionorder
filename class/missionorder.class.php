@@ -604,9 +604,9 @@ class TMissionOrderUser extends TObjetStd
 		$this->user = null;
 	}
 	
-	public function load(&$PDOdb, $id)
+	public function load(&$PDOdb, $id, $loadChild=true)
 	{
-		$res = parent::load($PDOdb, $id);
+		$res = parent::load($PDOdb, $id, $loadChild);
 		$this->loadUser($PDOdb);
 		
 		return $res;
@@ -647,9 +647,9 @@ class TMissionOrderReason extends TObjetStd
 		$this->active = null;
 	}
 	
-	public function load(&$PDOdb, $id)
+	public function load(&$PDOdb, $id, $loadChild=true)
 	{
-		$res = parent::load($PDOdb, $id);
+		$res = parent::load($PDOdb, $id, $loadChild);
 		$this->loadDictionnaireInfo($PDOdb);
 		
 		return $res;
@@ -699,9 +699,9 @@ class TMissionOrderCarriage extends TObjetStd
 		$this->active = null;
 	}
 	
-	public function load(&$PDOdb, $id)
+	public function load(&$PDOdb, $id, $loadChild=true)
 	{
-		$res = parent::load($PDOdb, $id);
+		$res = parent::load($PDOdb, $id, $loadChild);
 		$this->loadDictionnaireInfo($PDOdb);
 		
 		return $res;
