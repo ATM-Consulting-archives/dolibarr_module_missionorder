@@ -82,7 +82,7 @@ function mission_order_prepare_head(TMissionOrder $object)
 
 function getProjectView($mode='view', $fk_project=0)
 {
-	global $db,$langs;
+	global $db,$langs,$conf;
 	
 	if ($mode == 'edit')
 	{
@@ -90,7 +90,7 @@ function getProjectView($mode='view', $fk_project=0)
 	
 		$formproject = new FormProjets($db);
 		ob_start();
-		$formproject->select_projects(-1, $fk_project, 'fk_project');
+		$formproject->select_projects(-1, $fk_project, 'fk_project', 16, 0, 1, $conf->global->PROJECT_HIDE_UNSELECTABLES);
 		$htmlProject = ob_get_clean();
 		
 		return $htmlProject;
