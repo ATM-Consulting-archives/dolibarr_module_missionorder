@@ -136,7 +136,7 @@ if (empty($reshook))
 			
 			header('Location: '.dol_buildpath('/missionorder/card.php', 1).'?id='.$missionorder->getId());
 			exit;
-		case 'confirm_create_ndfp':
+		case 'create_ndfp':
 			dol_include_once('/ndfp/class/ndfp.class.php');
 			if (!class_exists('Ndfp'))
 			{
@@ -228,7 +228,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	$TUsersGroup = $missionorder->getUsersGroup(1);
 	$is_valideur = !empty($conf->valideur->enabled) ? TRH_valideur_groupe::isValideur($PDOdb, $user->id, $TUsersGroup, false, 'missionOrder') : false;
-	$can_create_ndfp = !empty($conf->ndfp->enabled) && $user->rights->ndfp->allactions->create && ($missionorder->status == TMissionOrder::STATUS_ACCEPTED || (!empty($conf->global->MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE) && $missionorder->status == TMissionOrder::STATUS_TO_APPROVE) );
+	$can_create_ndfp = !empty($conf->ndfp->enabled) && $user->rights->ndfp->myactions->create && ($missionorder->status == TMissionOrder::STATUS_ACCEPTED || (!empty($conf->global->MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE) && $missionorder->status == TMissionOrder::STATUS_TO_APPROVE) );
 	
 	$TNextValideur = !empty($conf->valideur->enabled) && $missionorder->status == TMissionOrder::STATUS_TO_APPROVE ? $missionorder->getNextTValideur($PDOdb) : array();
 	
