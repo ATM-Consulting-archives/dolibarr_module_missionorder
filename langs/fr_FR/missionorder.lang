@@ -99,7 +99,7 @@ MailHello=Bonjour,
 
 MailTitleToApprove=Veuillez trouver ci-dessous le lien d'une demande d'approbation d'ordre de mission sous la référence : <b>%s</b>
 MailTitleIsRefused=L'ordre de mission <b>%s</b> vient d'être refusé par <b>%s</b>
-MailTitleIsAccepted=L'ordre de mission <b>%s</b> a était accepté
+MailTitleIsAccepted=L'ordre de mission <b>%s</b> a été accepté
 MailTitleNewApproval=L'ordre de mission <b>%s</b> vient d'être approuvé par <b>%s</b>
 
 MailLinkToMissionOrder=Cliquez pour voir l'ordre de mission

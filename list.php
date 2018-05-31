@@ -158,7 +158,8 @@ function _list()
 		)
 		,'translate' => array()
 		,'hide' => array(
-			'rowid'
+			'rowid',
+			'nextValideurs'
 		)
 		,'liste' => array(
 			'titre' => $langs->trans('ListMissionOrder')
@@ -181,7 +182,7 @@ function _list()
 			,'status' => $langs->trans('Status')
 			,'TUserId' => $langs->trans('UsersLinked')
 			,'action' => $langs->trans('Action')
-			,'nextValideurs' => $langs->trans('NextValideur')
+//			,'nextValideurs' => $langs->trans('NextValideur')
 		)
 		,'eval'=>array(
 			'ref' => 'TMissionOrder::getStaticNomUrl(@rowid@, 1)'
@@ -193,7 +194,7 @@ function _list()
 			,'status' => 'TMissionOrder::LibStatut(@val@, 4)'
 			,'TUserId' => '_getUsersLink("@val@")'
 			,'action' => '_isValideur("@rowid@")'
-			,'nextValideurs' => '_getNextValideur(@rowid@)'
+//			,'nextValideurs' => '_getNextValideur(@rowid@)'
 		)
 	));
 	

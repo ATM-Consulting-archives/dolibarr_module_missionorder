@@ -43,7 +43,7 @@
 			</tr>
 
 			<tr class="reason">
-				<td width="25%">[langs.transnoentities(Reason)]</td>
+				<td width="25%">[langs.transnoentities(Motif de la mission)]</td>
 				<td>[view.showReason;strconv=no]</td>
 			</tr>
 
@@ -53,7 +53,7 @@
 			</tr>
 
 			<tr class="note">
-				<td width="25%">[langs.transnoentities(Note)]</td>
+				<td width="25%">[langs.transnoentities(Commentaire)]</td>
 				<td>[view.showNote;strconv=no]</td>
 			</tr>
 			

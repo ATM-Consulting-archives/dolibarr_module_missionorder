@@ -184,15 +184,15 @@ class TMissionOrder extends TObjetStd
 	private function getTValideurFromTUser(&$PDOdb, &$TUser)
 	{
 		$TValideur = array();
-		foreach ($TUser as &$u)
+		foreach ($TUser as &$user)
 		{
-			$Tab = TRH_valideur_groupe::getUserValideur($PDOdb, $u, $this, 'missionOrder', 'object');
+			$Tab = TRH_valideur_groupe::getUserValideur($PDOdb, $user, $this, 'missionOrder', 'object');
 			foreach ($Tab as &$u)
 			{
 				$TValideur[$u->id] = $u;
 			}
 		}
-		
+		//var_dump($TValideur); exit;
 		return $TValideur;
 	}
 	
@@ -264,7 +264,7 @@ class TMissionOrder extends TObjetStd
 		$from = $this->getFirstMailFromUser($TUser);
 		$to = $this->concatMailFromUser($TValideur);
 		$addr_cc = $this->concatMailFromUser($TUser);
-		
+		//var_dump($TValideur);exit;
 		$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php', $addr_cc);
 		
 		if ($res < 0) return -1;
@@ -560,7 +560,7 @@ class TMissionOrder extends TObjetStd
 		
 		if (!$this->getId()) return true;
 		if (!empty($conf->valideur->enabled) && TRH_valideur_groupe::isValideur($PDOdb, $fk_user, $this->getUsersGroup(1), false, 'missionOrder'))  return true;
-		
+		if($fk_user == $this->fk_user_author) return true;
 		foreach ($this->TMissionOrderUser as &$missionOrderUser)
 		{
 			if ($missionOrderUser->fk_user == $fk_user) return true;
