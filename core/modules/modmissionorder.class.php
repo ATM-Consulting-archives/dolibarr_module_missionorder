@@ -286,7 +286,7 @@ class modmissionorder extends DolibarrModules
 			'fk_menu'=>'fk_mainmenu=missionorder,fk_leftmenu=missionorderleft',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
 			'titre'=>$langs->trans('LeftMenuMissionOrderCreate'),
-			'mainmenu'=>'missionorderleft',
+			'mainmenu'=>'missionorder',
 			'leftmenu'=>'',
 			'url'=>'/missionorder/card.php?action=create',
 			'langs'=>'missionorder@missionorder',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
@@ -302,7 +302,7 @@ class modmissionorder extends DolibarrModules
 			'fk_menu'=>'fk_mainmenu=missionorder,fk_leftmenu=missionorderleft',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
 			'titre'=>$langs->trans('LeftMenuMissionOrderMineList'),
-			'mainmenu'=>'missionorderleft',
+			'mainmenu'=>'missionorder',
 			'leftmenu'=>'',
 			'url'=>'/missionorder/list.php?type=mine',
 			'langs'=>'missionorder@missionorder',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
@@ -318,7 +318,7 @@ class modmissionorder extends DolibarrModules
 			'fk_menu'=>'fk_mainmenu=missionorder,fk_leftmenu=missionorderleft',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
 			'titre'=>$langs->trans('LeftMenuMissionOrderList'),
-			'mainmenu'=>'missionorderleft',
+			'mainmenu'=>'missionorder',
 			'leftmenu'=>'',
 			'url'=>'/missionorder/list.php',
 			'langs'=>'missionorder@missionorder',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
@@ -334,7 +334,7 @@ class modmissionorder extends DolibarrModules
 			'fk_menu'=>'fk_mainmenu=missionorder,fk_leftmenu=missionorderleft',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'left',			                // This is a Left menu entry
 			'titre'=>$langs->trans('LeftMenuMissionOrderListWaitingApproval'),
-			'mainmenu'=>'missionorderleft',
+			'mainmenu'=>'missionorder',
 			'leftmenu'=>'',
 			'url'=>'/missionorder/list.php?type=to_approve',
 			'langs'=>'missionorder@missionorder',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
