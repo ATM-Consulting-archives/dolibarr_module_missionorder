@@ -56,6 +56,7 @@ class TMissionOrder extends TObjetStd
 		$this->add_champs('fk_project,entity,fk_user_author,fk_user_valid', array('type' => 'integer', 'index' => true));
 		$this->add_champs('date_start,date_end,date_valid,date_refuse,date_accept', array('type' => 'date'));
 		$this->add_champs('note', array('type' => 'text'));
+		$this->add_champs('level', array('type' => 'integer', 'default' => 1));
 		
 		$this->_init_vars();
 		$this->start();
@@ -76,6 +77,7 @@ class TMissionOrder extends TObjetStd
 		$this->initDefaultvalue();
 		
 		$this->entity = $conf->entity;
+		$this->level = 1;
 		
 		$this->errors = array();
 	}
@@ -192,7 +194,7 @@ class TMissionOrder extends TObjetStd
 				$TValideur[$u->id] = $u;
 			}
 		}
-		//var_dump($TValideur); exit;
+//		var_dump($TValideur); exit;
 		return $TValideur;
 	}
 	
@@ -368,10 +370,12 @@ class TMissionOrder extends TObjetStd
 	
 	public function addApprobation(&$PDOdb)
 	{
-		global $user,$conf;
+		global $user,$conf,$db;
 		
 		if (TRH_valideur_object::alreadyAcceptedByThisUser($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder')) return 0;
 		
+		$res = 1;
+		$current_level = $this->level;
 		$TUser = $this->getUserFromMission();
 		
 		$from = $user->email;
@@ -384,23 +388,74 @@ class TMissionOrder extends TObjetStd
 		
 		$PDOdb->beginTransaction();
 		
-		$TRH_valideur_object = TRH_valideur_object::addLink($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder');
+		$TRH_valideur_object = TRH_valideur_object::addLink($PDOdb, $conf->entity, $user->id, $this->getId(), 'missionOrder');
+		
+		$canValidate = false;
+		if (TRH_valideur_groupe::isStrong($PDOdb, $user->id, 'missionOrder', $conf->entity))
+		{
+			$canValidate = true;
+			$this->level++; // j'incrémente le level car c'est un valideur "fort"
+		}
+		else // Valideur faible
+		{
+			// check si tous le monde a validé (car la notion de valideur "faible" est utilisable que s'il n'y a pas de valideur "fort" sur un même niveau de validation, autrement on attend tjr qu'un valideur "fort" accepte)
+			if (TRH_valideur_object::checkAllAccepted($PDOdb, $user, 'missionOrder', $this->getId(), $this, $TUser))
+			{
+				$canValidate = true;
+				$this->level++; // j'incrémente le level car tout le monde a validé sur ce même niveau ("faible")
+			}
+		}
+		
 		
 		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser); // TODO Check nextValideur
+//		var_dump($TValideur);exit;
 		if (!empty($TValideur))
 		{
 			$to = $this->concatMailFromUser($TValideur);
-			// Mail du valideur vers le/les prochain valideurs
-			$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php');
-			$res = 1;
-		}
-		else
-		{
-			// Plus aucun valideur, on est donc en bout de chaine => on accepte l'OM
-			$res = $this->setAccepted($PDOdb);
+			// Mail du valideur vers le/les prochains valideurs
+			$this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php');
 		}
 		
-		if ($res > 0) $PDOdb->commit();
+		if ($canValidate && !empty($conf->global->VALIDEUR_HIERARCHIE_ENABLED))
+		{
+			// Si on est chaud pour valider ("approuver") l'objet, il faut maintenant s'assurer qu'il ne reste pas des valideurs de niveau supérieur
+			
+			$TGroupId = array();
+			// Récupération des groupes des utilisateurs à valider pour les croiser avec ceux des valideurs
+			foreach ($TUser as $u)
+			{
+				if (empty($TGroupId)) $TGroupId = TRH_valideur_object::getTGroupIdForUser($u->id);
+				else $TGroupId = array_merge($TGroupId, TRH_valideur_object::getTGroupIdForUser($u->id));
+			}
+			
+			$TGroupId = array_unique($TGroupId);
+			
+			// Je veux savoir s'il y a des valideurs pour l'un des groupes de notre utilisateur validé
+			$sql = 'SELECT vg.fk_user FROM '.MAIN_DB_PREFIX.'rh_valideur_groupe vg WHERE vg.fk_usergroup IN ('.implode(',', $TGroupId).')';
+			$sql.= ' AND vg.type = "missionOrder" AND vg.level = '.$this->level; // ayant ce niveau de validation
+			// Si la requete retourne quelque chose, alors il faut renvoyer FALSE car il reste au moins 1 étape de validation hiérarchique
+			echo $sql;
+			$resql = $db->query($sql);
+			if ($resql)
+			{
+				if ($db->num_rows($resql) > 0) $canValidate = false;
+				else $canValidate = true; // affectation inutile mais je préfère l'expliciter pour le moment
+			}
+			else
+			{
+				dol_print_error($db);
+				exit;
+			}
+		}
+		
+		// Valideur fort ou tout les faibles ont acceptés sur le niveau courrant de l'objet
+		if ($canValidate) $res = $this->setAccepted($PDOdb);
+		
+		if ($res > 0)
+		{
+			if ($current_level != $this->level) $this->save($PDOdb);
+			$PDOdb->commit();
+		}
 		else $PDOdb->rollback();
 		
 		return $res;
