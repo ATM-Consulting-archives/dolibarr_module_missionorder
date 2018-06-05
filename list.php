@@ -70,7 +70,7 @@ function _list()
 
 	// TODO ajouter les colonnes manquantes ET une colonne action pour la notion de validation rapide
 	$sql = 'SELECT mo.rowid, mo.ref, mo.label, mo.location, mo.fk_project, mo.date_start, mo.date_end, mo.date_refuse, mo.date_accept
-					, mo.status, GROUP_CONCAT(mou.fk_user SEPARATOR \',\') as TUserId';
+					, mo.status, GROUP_CONCAT(DISTINCT mou.fk_user SEPARATOR \',\') as TUserId';
 	
 	if (!empty($conf->valideur->enabled)) $sql.= ', \'\' as nextValideurs';
 	
@@ -79,12 +79,17 @@ function _list()
 	$sql.= '
 			FROM '.MAIN_DB_PREFIX.'mission_order mo
 			LEFT JOIN '.MAIN_DB_PREFIX.'projet p ON (p.rowid = mo.fk_project)
-			LEFT JOIN '.MAIN_DB_PREFIX.'mission_order_user mou ON (mou.fk_mission_order = mo.rowid)
-			WHERE mo.entity IN ('.getEntity('TMissionOrder', 1).')';
+			LEFT JOIN '.MAIN_DB_PREFIX.'mission_order_user mou ON (mou.fk_mission_order = mo.rowid)';
 	
-	if ($type == 'to_approve') $sql.= 'AND mo.status = '.TMissionOrder::STATUS_TO_APPROVE;
+	if (!empty($conf->valideur->enabled))
+	{
+		$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'usergroup_user ugu ON (ugu.fk_user = mou.fk_user)';
+		$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'rh_valideur_groupe rhvg ON (rhvg.fk_usergroup = ugu.fk_usergroup)';
+	}
 	
+	$sql.= ' WHERE mo.entity IN ('.getEntity('TMissionOrder', 1).')';
 	
+	if ($type == 'to_approve') $sql.= ' AND mo.status = '.TMissionOrder::STATUS_TO_APPROVE;
 	
 	if ($type == 'mine') $sql.= ' AND EXISTS (SELECT 1 FROM '.MAIN_DB_PREFIX.'mission_order_user mou2 WHERE mou2.fk_mission_order=mo.rowid AND mou2.fk_user = '.$user->id.' )';
 	// équivalent avec un "IN"
@@ -92,34 +97,9 @@ function _list()
 	
 	if ($type == 'to_approve') 
 	{
-		if (!empty($conf->global->VALIDEUR_HIERARCHIE_ENABLED))
+		if (!empty($conf->valideur->enabled) && !empty($conf->global->VALIDEUR_HIERARCHIE_ENABLED))
 		{
-			// Reste à check si l'OM n'a pas déjà était apprové
-			// NOT EXISTS => mo.rowid NOT IN rh_valideur_object rhvo pour le user courant
-			// EXISTS => que l'OM référence un users du même groupe que le user courant (valideur courant)
-			// rhvg.level = au prochain level qui doit valider (si 1 et 2 on validé ceci retourne 3; si personne n'a validé alors sa retour 1; si 1 et 3 ont validés sa retourne 2 [cas particulier qui n'est pas sensé ce produire sauf si la conf hiérarchique a sauté passé un temps])
-			$sql.= '
-				AND EXISTS (
-					SELECT 1 FROM '.MAIN_DB_PREFIX.'usergroup_user ugu 
-					WHERE ugu.fk_user = mou.fk_user
-					AND EXISTS (
-						SELECT 1 FROM '.MAIN_DB_PREFIX.'rh_valideur_groupe rhvg 
-						WHERE rhvg.fk_usergroup = ugu.fk_usergroup
-						AND rhvg.fk_user = '.$user->id.'
-						AND rhvg.type = \'missionOrder\'
-						AND rhvg.entity = mo.entity
-
-						AND rhvg.level = (
-							SELECT COALESCE(MAX(vg2.level)+1, 1) FROM '.MAIN_DB_PREFIX.'rh_valideur_groupe vg2 
-							INNER JOIN '.MAIN_DB_PREFIX.'rh_valideur_object vo2 ON (vo2.fk_user = vg2.fk_user )
-							WHERE vg2.type = \'missionOrder\'
-
-							AND vo2.type = \'missionOrder\'
-							AND vo2.fk_object = mo.rowid
-						)
-					)
-				)		
-			';
+			$sql.= TRH_valideur_groupe::getSqlListObject('missionOrder');
 		}
 	}
 	
