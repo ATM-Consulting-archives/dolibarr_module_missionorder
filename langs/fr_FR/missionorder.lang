@@ -67,7 +67,7 @@ Refuse=Refuser
 Reopen=Rouvrir
 NewMissionOrder=Nouvel ordre de mission
 ValidateAndSendToBeApprove=Valider et envoyer pour approbation
-NextValideur=Prochain valideur
+NextValideur=Prochain(s) valideur(s)
 
 # FROM OBJECT
 MissionOrderStatusDraft=Brouillon (à valider)
