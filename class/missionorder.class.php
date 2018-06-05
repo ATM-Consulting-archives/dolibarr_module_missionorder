@@ -370,10 +370,11 @@ class TMissionOrder extends TObjetStd
 	
 	public function addApprobation(&$PDOdb)
 	{
-		global $user,$conf;
+		global $user,$conf,$db;
 		
 		if (TRH_valideur_object::alreadyAcceptedByThisUser($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder')) return 0;
 		
+		$res = 1;
 		$current_level = $this->level;
 		$TUser = $this->getUserFromMission();
 		
@@ -387,7 +388,6 @@ class TMissionOrder extends TObjetStd
 		
 		$PDOdb->beginTransaction();
 		
-
 		$TRH_valideur_object = TRH_valideur_object::addLink($PDOdb, $conf->entity, $user->id, $this->getId(), 'missionOrder');
 		
 		$canValidate = false;
@@ -406,14 +406,46 @@ class TMissionOrder extends TObjetStd
 			}
 		}
 		
+		
 		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser); // TODO Check nextValideur
 //		var_dump($TValideur);exit;
 		if (!empty($TValideur))
 		{
 			$to = $this->concatMailFromUser($TValideur);
 			// Mail du valideur vers le/les prochains valideurs
-			$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php');
-			$res = 1;
+			$this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php');
+		}
+		
+		if ($canValidate && !empty($conf->global->VALIDEUR_HIERARCHIE_ENABLED))
+		{
+			// Si on est chaud pour valider ("approuver") l'objet, il faut maintenant s'assurer qu'il ne reste pas des valideurs de niveau supérieur
+			
+			$TGroupId = array();
+			// Récupération des groupes des utilisateurs à valider pour les croiser avec ceux des valideurs
+			foreach ($TUser as $u)
+			{
+				if (empty($TGroupId)) $TGroupId = TRH_valideur_object::getTGroupIdForUser($u->id);
+				else $TGroupId = array_merge($TGroupId, TRH_valideur_object::getTGroupIdForUser($u->id));
+			}
+			
+			$TGroupId = array_unique($TGroupId);
+			
+			// Je veux savoir s'il y a des valideurs pour l'un des groupes de notre utilisateur validé
+			$sql = 'SELECT vg.fk_user FROM '.MAIN_DB_PREFIX.'rh_valideur_groupe vg WHERE vg.fk_usergroup IN ('.implode(',', $TGroupId).')';
+			$sql.= ' AND vg.type = "missionOrder" AND vg.level = '.$this->level; // ayant ce niveau de validation
+			// Si la requete retourne quelque chose, alors il faut renvoyer FALSE car il reste au moins 1 étape de validation hiérarchique
+			echo $sql;
+			$resql = $db->query($sql);
+			if ($resql)
+			{
+				if ($db->num_rows($resql) > 0) $canValidate = false;
+				else $canValidate = true; // affectation inutile mais je préfère l'expliciter pour le moment
+			}
+			else
+			{
+				dol_print_error($db);
+				exit;
+			}
 		}
 		
 		// Valideur fort ou tout les faibles ont acceptés sur le niveau courrant de l'objet
