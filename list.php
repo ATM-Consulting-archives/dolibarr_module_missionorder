@@ -74,7 +74,7 @@ function _list()
 	
 	if (!empty($conf->valideur->enabled)) $sql.= ', \'\' as nextValideurs';
 	
-	if (!empty($user->rights->missionorder->all->approve)) $sql .= ', \'\' as action';
+	if (!empty($user->rights->missionorder->all->approve) && $type == 'to_approve') $sql .= ', \'\' as action';
 	
 	$sql.= '
 			FROM '.MAIN_DB_PREFIX.'mission_order mo
@@ -173,7 +173,7 @@ function _list()
 			,'date_accept' => '_formatDate("@val@")'
 			,'status' => 'TMissionOrder::LibStatut(@val@, 4)'
 			,'TUserId' => '_getUsersLink("@val@")'
-			,'action' => '_isValideur("@rowid@")'
+			,'action' => '_canValidate("@rowid@", "'.$type.'")'
 //			,'nextValideurs' => '_getNextValideur(@rowid@)'
 		)
 	));
@@ -183,7 +183,7 @@ function _list()
 	print $hookmanager->resPrint;
 	
 	
-	if (!empty($conf->valideur->enabled) && !empty($user->rights->missionorder->all->approve))
+	if (!empty($conf->valideur->enabled) && !empty($user->rights->missionorder->all->approve) && $type == 'to_approve')
 	{
 		echo '<div class="tabsAction">
 			<div class="inline-block divButAction">
@@ -242,24 +242,14 @@ function _getUsersLink($fk_user_string)
 	return $res;
 }
 
-function _isValideur($fk_mission_order)
+function _canValidate($fk_mission_order, $type)
 {
-	global $PDOdbGlobal,$user,$line_approve_counter,$conf;
+	global $user,$line_approve_counter,$conf;
 	
-	if (empty($conf->valideur->enabled) || empty($user->rights->missionorder->all->approve)) return '';
+	if (empty($conf->valideur->enabled) || empty($user->rights->missionorder->all->approve) || $type != 'to_approve') return '';
 	
-	$missionorder = new TMissionOrder;
-	$missionorder->load($PDOdbGlobal, $fk_mission_order);
-	
-	if ($missionorder->status != TMissionOrder::STATUS_TO_APPROVE) return '';
-	
-	$TUsersGroup = $missionorder->getUsersGroup(1);
-	if (TRH_valideur_groupe::canBeValidateByThisUser($PDOdbGlobal, $user, $missionorder, $TUsersGroup, 'missionOrder', $missionorder->entity))
-	{
-		$line_approve_counter++;
-		return '<input type="checkbox" name="TMissionOrderId[]" value="'.$fk_mission_order.'" checked="checked" />';
-	}
-	else return '';
+	$line_approve_counter++;
+	return '<input type="checkbox" name="TMissionOrderId[]" value="'.$fk_mission_order.'" checked="checked" />';
 }
 
 function _getNextValideur($fk_mission_order)
