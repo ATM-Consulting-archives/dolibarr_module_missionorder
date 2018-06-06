@@ -623,6 +623,40 @@ class TMissionOrder extends TObjetStd
 		
 		return false;
 	}
+	
+	public function canBeValidateByThisUser(&$PDOdb, &$user)
+	{
+		global $conf;
+		
+		if ($this->status != TMissionOrder::STATUS_TO_APPROVE) return false;
+		
+		$TGroupUser = $this->getUsersGroup(1);
+		if (!TRH_valideur_groupe::isValideur($PDOdb, $user->id, $TGroupUser, false, 'missionOrder')) return false;
+		elseif (TRH_valideur_object::alreadyAcceptedByThisUser($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder')) return false;
+		elseif ($this->fk_user == $user->id && !TRH_valideur_groupe::validHimSelf($user, $this, 'missionOrder')) return false;
+		
+		$TLevelValidation = TRH_valideur_groupe::getTLevelValidation($PDOdb, $user, 'missionOrder', $TGroupUser);
+		$intersect = array_intersect($TGroupUser, array_keys($TLevelValidation));
+		
+		if (!empty($conf->global->VALIDEUR_HIERARCHIE_ENABLED))
+		{
+			if (empty($intersect)) return false;
+			
+			foreach ($intersect as $fk_usergroup)
+			{
+				$level_validation = $TLevelValidation[$fk_usergroup];
+				if ($level_validation == $this->level) return true;
+			}
+			
+			return false;
+		}
+		else
+		{
+			if (!empty($intersect)) return true;
+		}
+		
+		return false;
+	}
 }
 
 /**

@@ -35,10 +35,7 @@ if (empty($reshook))
 			$missionorder = new TMissionOrder;
 			$missionorder->load($PDOdbGlobal, $id);
 
-			if ($missionorder->status != TMissionOrder::STATUS_TO_APPROVE) continue;
-
-			$TUsersGroup = $missionorder->getUsersGroup(1);
-			if (TRH_valideur_groupe::canBeValidateByThisUser($PDOdbGlobal, $user, $missionorder, $TUsersGroup, 'missionOrder', $missionorder->entity))
+			if ($missionorder->canBeValidateByThisUser($PDOdbGlobal, $user))
 			{
 				$missionorder->addApprobation($PDOdbGlobal);
 			}
@@ -97,7 +94,7 @@ function _list()
 	
 	if ($type == 'to_approve') 
 	{
-		if (!empty($conf->valideur->enabled) && !empty($conf->global->VALIDEUR_HIERARCHIE_ENABLED))
+		if (!empty($conf->valideur->enabled))
 		{
 			$sql.= TRH_valideur_groupe::getSqlListObject('missionOrder');
 		}
