@@ -101,7 +101,7 @@ function _list()
 	}
 	
 	$sql.= ' GROUP BY mo.rowid';
-	
+	$sql.=' ORDER BY mo.rowid DESC';
 	$PDOdb = new TPDOdb;
 	$missionorder = new TMissionOrder;
 	
