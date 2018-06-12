@@ -188,13 +188,14 @@ class TMissionOrder extends TObjetStd
 		$TValideur = array();
 		foreach ($TUser as &$user)
 		{
+			$this->fk_user = $user->id; // Trick pour le commit 424cf10a989 du module valideur !!!
 			$Tab = TRH_valideur_groupe::getUserValideur($PDOdb, $user, $this, 'missionOrder', 'object');
 			foreach ($Tab as &$u)
 			{
 				$TValideur[$u->id] = $u;
 			}
 		}
-//		var_dump($TValideur); exit;
+//		var_dump(array_keys($TValideur)); exit;
 		return $TValideur;
 	}
 	

@@ -99,10 +99,12 @@ function _list()
 			$sql.= TRH_valideur_groupe::getSqlListObject('missionOrder');
 		}
 	}
-	else{
-		$sql.= ' GROUP BY mo.rowid';
-		$sql.=' ORDER BY mo.rowid DESC';
-	}
+	
+	$sql.= ' GROUP BY mo.rowid';
+
+	$TFiltre = GETPOST('TListTBS', 'array');
+	if (empty($TFiltre['list_llx_mission_order'])) $sql.=' ORDER BY mo.rowid DESC';
+	
 
 	$PDOdb = new TPDOdb;
 	$missionorder = new TMissionOrder;
