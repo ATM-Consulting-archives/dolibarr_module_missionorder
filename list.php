@@ -63,7 +63,7 @@ function _list()
 	llxHeader('',$langs->trans('listMissionOrder'),'','');
 	
 	$type = GETPOST('type');
-//	if (empty($user->rights->missionorder->all->read_mo)) $type = 'mine';
+	if (empty($user->rights->missionorder->all->read_mo) && empty($type)) $type = 'mine';
 
 	// TODO ajouter les colonnes manquantes ET une colonne action pour la notion de validation rapide
 	$sql = 'SELECT mo.rowid, mo.ref, mo.label, mo.location, mo.fk_project, mo.date_start, mo.date_end, mo.date_refuse, mo.date_accept
@@ -99,9 +99,11 @@ function _list()
 			$sql.= TRH_valideur_groupe::getSqlListObject('missionOrder');
 		}
 	}
-	
-	$sql.= ' GROUP BY mo.rowid';
-	$sql.=' ORDER BY mo.rowid DESC';
+	else{
+		$sql.= ' GROUP BY mo.rowid';
+		$sql.=' ORDER BY mo.rowid DESC';
+	}
+
 	$PDOdb = new TPDOdb;
 	$missionorder = new TMissionOrder;
 	
