@@ -246,6 +246,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 				,'can_delete' => in_array($user->id, $TUsersGroup) || $is_valideur
 				,'can_create_ndfp' => $can_create_ndfp
 				,'allowed_user' => $missionorder->checkUserIsIntoMission($user) || $is_valideur
+				,'is_valideur' => $is_valideur
 				,'urlcard' => dol_buildpath('/missionorder/card.php', 1)
 				,'urllist' => dol_buildpath('/missionorder/list.php', 1)
 				,'showRef' => ($action == 'create') ? $langs->trans('Draft') : $form->showrefnav($missionorder->generic, 'ref', $linkback, 1, 'ref', 'ref', '')
