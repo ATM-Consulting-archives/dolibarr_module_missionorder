@@ -268,9 +268,13 @@ class TMissionOrder extends TObjetStd
 		$to = $this->concatMailFromUser($TValideur);
 		$addr_cc ='';// $this->concatMailFromUser($TUser);
 		//var_dump($TValideur);exit;
+		if(empty($to)){
+			setEventMessages('Pas de valideur pour ce groupe', array(), 'errors');
+			return -1;
+		}
 		$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php', $addr_cc);
 		
-		if ($res < 0) return -1;
+		if ($res <= 0) return -1;
 		
 		return parent::save($PDOdb);
 	}
