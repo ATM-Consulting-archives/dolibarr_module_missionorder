@@ -266,7 +266,7 @@ class TMissionOrder extends TObjetStd
 		
 		$from = $this->getFirstMailFromUser($TUser);
 		$to = $this->concatMailFromUser($TValideur);
-		$addr_cc = $this->concatMailFromUser($TUser);
+		$addr_cc ='';// $this->concatMailFromUser($TUser);
 		//var_dump($TValideur);exit;
 		$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php', $addr_cc);
 		
