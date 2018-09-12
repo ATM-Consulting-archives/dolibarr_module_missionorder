@@ -43,7 +43,6 @@ if (empty($reshook))
 			$PDOdb->beginTransaction();
 			
 			$missionorder->set_values($_REQUEST); // Set standard attributes
-			
 			$missionorder->date_start = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
 			$missionorder->date_end = dol_mktime(GETPOST('endhour'), GETPOST('endmin'), 0, GETPOST('endmonth'), GETPOST('endday'), GETPOST('endyear'));
 			
@@ -213,6 +212,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	$htmlProject = getProjectView($mode, $missionorder->fk_project);
 	$htmlUsers = getUsersView($missionorder->TMissionOrderUser, $form, $mode);
+	$htmlUsergroup = getUsergroupView($mode, $missionorder->fk_usergroup);
 	
 	$htmlDateStart = getDateView($form, $missionorder->date_start, $mode, 'start');
 	$htmlDateEnd = getDateView($form, $missionorder->date_end, $mode, 'end');
@@ -227,6 +227,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	if ($mode == 'edit') echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_mission_order');
 	
 	$TUsersGroup = $missionorder->getUsersGroup(1);
+	
 	$is_valideur = !empty($conf->valideur->enabled) ? TRH_valideur_groupe::isValideur($PDOdb, $user->id, $TUsersGroup, false, 'missionOrder') : false;
 	$can_create_ndfp = !empty($conf->ndfp->enabled) && $user->rights->ndfp->myactions->create && ($missionorder->status == TMissionOrder::STATUS_ACCEPTED || (!empty($conf->global->MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE) && $missionorder->status == TMissionOrder::STATUS_TO_APPROVE) );
 	
@@ -260,6 +261,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 				,'showCarriage' => $htmlCarriage
 				,'showNote' => $formcore->zonetexte('', 'note', $missionorder->note, 80, 8)
 				,'showStatus' => $missionorder->getLibStatut(1)
+				,'showUsergroup' => $htmlUsergroup
 			)
 			,'langs' => $langs
 			,'form' => $form

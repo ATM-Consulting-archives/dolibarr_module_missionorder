@@ -53,7 +53,7 @@ class TMissionOrder extends TObjetStd
 		$this->add_champs('label,location,other_reason,other_carriage', array('type' => 'string'));
 		$this->add_champs('status', array('type' => 'integer'));
 		
-		$this->add_champs('fk_project,entity,fk_user_author,fk_user_valid', array('type' => 'integer', 'index' => true));
+		$this->add_champs('fk_project,entity,fk_user_author,fk_user_valid,fk_usergroup', array('type' => 'integer', 'index' => true));
 		$this->add_champs('date_start,date_end,date_valid,date_refuse,date_accept', array('type' => 'date'));
 		$this->add_champs('note', array('type' => 'text'));
 		$this->add_champs('level', array('type' => 'integer', 'default' => 1));
@@ -260,7 +260,7 @@ class TMissionOrder extends TObjetStd
 	{
 		$this->status = self::STATUS_TO_APPROVE;
 		$this->withChild = false;
-
+		
 		$TUser = $this->getUserFromMission();
 		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser);
 		

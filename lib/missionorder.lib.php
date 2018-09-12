@@ -149,6 +149,51 @@ function getUsersView(&$TMissionOrderUser, &$form, $mode='view')
 	return $res;
 }
 
+function getUsergroupView($mode='view', $fk_usergroup=0)
+{
+	global $db,$langs,$conf, $user;
+	
+	if ($mode == 'edit')
+	{
+		require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
+		dol_include_once('/user/class/usergroup.class.php');
+		
+		$group = new UserGroup($db);
+		$listgroup = $group->listGroupsForUser($user->id);
+		$viewGroup = array();
+		if(!empty($listgroup)){
+			foreach($listgroup as $grpid => $grp){
+				$viewGroup[$grpid]=$grp->nom;
+			}
+		}
+		
+		
+		
+		$form = new Form($db);
+		ob_start();
+		print $form->selectarray('fk_usergroup',$viewGroup, $fk_usergroup);
+		$htmlProject = ob_get_clean();
+		
+		return $htmlProject;
+	}
+	elseif ($fk_usergroup > 0) // mode view mais uniquement si le fetch d'un projet en vos la peine
+	{
+		dol_include_once('/user/class/usergroup.class.php');
+		
+		$group = new UserGroup($db);
+		if ($group->fetch($fk_usergroup) > 0)
+		{
+			return $group->getNomUrl(1, '', 1);
+		}
+		else
+		{
+			setEventMessages($langs->trans('warning_fk_group_fetch_fail', $fk_usergroup), array(), 'warnings');
+		}
+	}
+	
+	return '';
+}
+
 function getAllUserNameById()
 {
 	global $db,$langs,$conf,$user;

@@ -68,6 +68,7 @@ Reopen=Rouvrir
 NewMissionOrder=Nouvel ordre de mission
 ValidateAndSendToBeApprove=Valider et envoyer pour approbation
 NextValideur=Prochain(s) valideur(s)
+UserGroupLinked=Groupe associé
 
 # FROM OBJECT
 MissionOrderStatusDraft=Brouillon (à valider)

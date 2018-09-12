@@ -26,6 +26,11 @@
 				<td width="25%" class="fieldrequired">[langs.transnoentities(UsersLinked)]</td>
 				<td>[view.showUsers;strconv=no]</td>
 			</tr>
+			
+			<tr class="usergroup">
+				<td width="25%" class="fieldrequired">[langs.transnoentities(UserGroupLinked)]</td>
+				<td>[view.showUsergroup;strconv=no]</td>
+			</tr>
 
 			<tr class="location">
 				<td width="25%">[langs.transnoentities(Location)]</td>
