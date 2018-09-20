@@ -65,10 +65,10 @@ if (empty($reshook))
 				setEventMessages($langs->trans('warning_no_user_linked'), array(), 'warnings');
 			}
 			
-			if (empty($missionorder->fk_project))
+			if (empty($missionorder->fk_usergroup))
 			{
 				$error++;
-				setEventMessages($langs->trans('warning_no_project_selected'), array(), 'warnings');
+				setEventMessages($langs->trans('warning_no_usergroup_selected'), array(), 'warnings');
 			}
 			
 			if ($error)

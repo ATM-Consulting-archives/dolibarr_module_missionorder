@@ -263,7 +263,7 @@ class TMissionOrder extends TObjetStd
 		
 		$TUser = $this->getUserFromMission();
 		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser);
-		
+
 		$from = $this->getFirstMailFromUser($TUser);
 		$to = $this->concatMailFromUser($TValideur);
 		$addr_cc ='';// $this->concatMailFromUser($TUser);
@@ -534,6 +534,9 @@ class TMissionOrder extends TObjetStd
 	{
 		global $db;
 		
+		if(!empty($this->fk_usergroup))return array($this->fk_usergroup);
+		
+		
 		require_once DOL_DOCUMENT_ROOT.'/user/class/usergroup.class.php';
 		
 		$TGroup = array();
@@ -636,6 +639,7 @@ class TMissionOrder extends TObjetStd
 		if ($this->status != TMissionOrder::STATUS_TO_APPROVE) return false;
 		
 		$TGroupUser = $this->getUsersGroup(1);
+		
 		if (!TRH_valideur_groupe::isValideur($PDOdb, $user->id, $TGroupUser, false, 'missionOrder')) return false;
 		elseif (TRH_valideur_object::alreadyAcceptedByThisUser($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder')) return false;
 		elseif ($this->fk_user == $user->id && !TRH_valideur_groupe::validHimSelf($user, $this, 'missionOrder')) return false;

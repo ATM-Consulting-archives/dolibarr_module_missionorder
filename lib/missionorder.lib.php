@@ -115,7 +115,7 @@ function getProjectView($mode='view', $fk_project=0)
 
 function getUsersView(&$TMissionOrderUser, &$form, $mode='view')
 {
-	global $db,$langs;
+	global $db,$langs,$user;
 	
 	$res = '';
 	
@@ -127,7 +127,7 @@ function getUsersView(&$TMissionOrderUser, &$form, $mode='view')
 		{
 			$TSelectedUser[] = $missionOrderUser->fk_user;
 		}
-		
+		if(empty($TSelectedUser))$TSelectedUser=array($user->id);
 		$res = $form->multiselectarray('TUser', $TUser, $TSelectedUser, 0, 0, '', 0, '95%', '', '');
 	}
 	elseif (!empty($TMissionOrderUser))

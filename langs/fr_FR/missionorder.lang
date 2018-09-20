@@ -81,7 +81,7 @@ MissionOrderStatusAccepted=Acceptée (fermée)
 warning_date_start_end_must_be_fill=Attention : les dates de début et de fin sont obligatoires
 warning_date_start_must_be_inferior_as_date_end=Attention : la date de début doit être inférieur à la date de fin
 warning_no_user_linked=Attention : l'association à un utilisateur est obligatoire
-warning_no_project_selected=Attention : l'association à un projet est obligatoire
+warning_no_usergroup_selected=Attention : l'association à un groupe est obligatoire
 warning_fk_user_fetch_fail=Attention : échec sur le chargement d'un utilisateur [id : %d]
 warning_fk_project_fetch_fail=Attention : échec sur le chargement du projet [id : %d]
 

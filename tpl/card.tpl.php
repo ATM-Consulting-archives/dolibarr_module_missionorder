@@ -18,7 +18,7 @@
 			</tr>
 
 			<tr class="project">
-				<td width="25%" class="fieldrequired">[langs.transnoentities(ProjectLinked)]</td>
+				<td width="25%" >[langs.transnoentities(ProjectLinked)]</td>
 				<td>[view.showProject;strconv=no]</td>
 			</tr>
 
