@@ -102,7 +102,6 @@ function _list()
 	}
 	
 	$sql.= ' GROUP BY mo.rowid';
-
 	$TFiltre = GETPOST('TListTBS', 'array');
 	if (empty($TFiltre['list_llx_mission_order'])) $sql.=' ORDER BY mo.rowid DESC';
 	
@@ -202,7 +201,7 @@ function _list()
 function _getProjectNomUrl($fk_project)
 {
 	global $db;
-	if(!empty($fk_project)){
+	if($fk_project > 0){
 		$project = new Project($db);
 		$project->fetch($fk_project);
 

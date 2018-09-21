@@ -5,6 +5,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 dol_include_once('/missionorder/class/missionorder.class.php');
 dol_include_once('/missionorder/lib/missionorder.lib.php');
+dol_include_once('/projet/class/project.class.php');
 if (!empty($conf->valideur->enabled)) dol_include_once('/valideur/class/valideur.class.php');
 
 if (empty($user->rights->missionorder->read)) accessforbidden();
@@ -210,9 +211,10 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	$formconfirm = getFormConfirm($PDOdb, $form, $missionorder, $action);
 	if (!empty($formconfirm)) echo $formconfirm;
 	
-	$htmlProject = getProjectView($mode, $missionorder->fk_project);
+	if(empty($missionorder->ref))$missionorder->TMissionOrderUser = array($user);
+	$htmlProject = getProjectView($mode, $missionorder->fk_project,$missionorder->TMissionOrderUser);
 	$htmlUsers = getUsersView($missionorder->TMissionOrderUser, $form, $mode);
-	$htmlUsergroup = getUsergroupView($mode, $missionorder->fk_usergroup);
+	$htmlUsergroup = getUsergroupView($mode, $missionorder->fk_usergroup,$missionorder->TMissionOrderUser);
 	
 	$htmlDateStart = getDateView($form, $missionorder->date_start, $mode, 'start');
 	$htmlDateEnd = getDateView($form, $missionorder->date_end, $mode, 'end');
@@ -282,5 +284,47 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	if ($mode == 'view') $somethingshown = $form->showLinkedObjectBlock($missionorder->generic);
 	
+	?>
+		<script type='text/javascript'>
+			$(document).ready(function(){
+				$('#TUser').on('change',function (data) {
+					$.ajax({
+						url : "./script/interface.php"
+						,data: {
+							json:1
+							,get : 'project'
+							,TUserId : data.val
+
+						}
+						,dataType: 'json'
+					})
+					.done(function (result) {
+						$("#fk_project").replaceWith(result);
+						
+					}); 
+					
+					$.ajax({
+						url : "./script/interface.php"
+						,data: {
+							json:1
+							,get : 'usergroup'
+							,TUserId : data.val
+
+						}
+						,dataType: 'json'
+					})
+					.done(function (result) {
+						$("#fk_usergroup").replaceWith(result);
+						
+					}); 
+				});
+				
+			});
+		
+
+		</script>
+				
+	<?php
+
 	llxFooter();
 }
