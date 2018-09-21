@@ -640,9 +640,14 @@ class TMissionOrder extends TObjetStd
 		
 		$TGroupUser = $this->getUsersGroup(1);
 		
+		$onMission=false;
+		foreach($this->TUser as $userMission){
+			if($userMission->id == $user->id)$onMission=true; 
+		}
+		
 		if (!TRH_valideur_groupe::isValideur($PDOdb, $user->id, $TGroupUser, false, 'missionOrder')) return false;
 		elseif (TRH_valideur_object::alreadyAcceptedByThisUser($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder')) return false;
-		elseif ($this->fk_user == $user->id && !TRH_valideur_groupe::validHimSelf($user, $this, 'missionOrder')) return false;
+		elseif ($onMission && !TRH_valideur_groupe::validHimSelf($user, $this, 'missionOrder')) return false;
 		
 		$TLevelValidation = TRH_valideur_groupe::getTLevelValidation($PDOdb, $user, 'missionOrder', $TGroupUser);
 		$intersect = array_intersect($TGroupUser, array_keys($TLevelValidation));
