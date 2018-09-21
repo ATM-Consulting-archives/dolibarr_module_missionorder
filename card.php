@@ -211,7 +211,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	$formconfirm = getFormConfirm($PDOdb, $form, $missionorder, $action);
 	if (!empty($formconfirm)) echo $formconfirm;
 	
-	if(empty($missionorder->ref))$missionorder->TMissionOrderUser = array($user);
+	if(empty($missionorder->ref))$missionorder->TMissionOrderUser = array($user); // Si on est à la création on prérempli le select user avec le user createur
 	$htmlProject = getProjectView($mode, $missionorder->fk_project,$missionorder->TMissionOrderUser);
 	$htmlUsers = getUsersView($missionorder->TMissionOrderUser, $form, $mode);
 	$htmlUsergroup = getUsergroupView($mode, $missionorder->fk_usergroup,$missionorder->TMissionOrderUser);
@@ -285,6 +285,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	if ($mode == 'view') $somethingshown = $form->showLinkedObjectBlock($missionorder->generic);
 	
 	?>
+<!-- MAJ EN TEMPS REEL DES SELECT EN FCT DES USERS SELECTED -->
 		<script type='text/javascript'>
 			$(document).ready(function(){
 				$('#TUser').on('change',function (data) {

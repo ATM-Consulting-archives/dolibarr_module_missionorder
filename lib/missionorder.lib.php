@@ -243,9 +243,9 @@ function getUsergroupView($mode='view', $fk_usergroup=0,$TUser=array())
 		$form = new Form($db);
 		ob_start();
 		print $form->selectarray('fk_usergroup',$viewGroup, $fk_usergroup,1,0,0,'',0,0,0,'','minwidth100');
-		$htmlProject = ob_get_clean();
+		$htmlUsergroup = ob_get_clean();
 		
-		return $htmlProject;
+		return $htmlUsergroup;
 	}
 	elseif ($fk_usergroup > 0) // mode view mais uniquement si le fetch d'un projet en vos la peine
 	{

@@ -641,7 +641,7 @@ class TMissionOrder extends TObjetStd
 		$TGroupUser = $this->getUsersGroup(1);
 		
 		$onMission=false;
-		foreach($this->TUser as $userMission){
+		foreach($this->TUser as $userMission){ // On check sur tous les users s'il est dans l'ordre de mission
 			if($userMission->id == $user->id)$onMission=true; 
 		}
 		
