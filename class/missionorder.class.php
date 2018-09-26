@@ -183,6 +183,16 @@ class TMissionOrder extends TObjetStd
 		return $res;
 	}
 	
+	function cloneObject(&$db)
+	{
+		$this->is_clone = true;
+		parent::start();
+		parent::clearChildren();
+		
+		$this->level=1;
+		return $this->save($db);
+	}
+	
 	private function getTValideurFromTUser(&$PDOdb, &$TUser)
 	{
 		$TValideur = array();
@@ -190,6 +200,7 @@ class TMissionOrder extends TObjetStd
 		{
 			$this->fk_user = $user->id; // Trick pour le commit 424cf10a989 du module valideur !!!
 			$Tab = TRH_valideur_groupe::getUserValideur($PDOdb, $user, $this, 'missionOrder', 'object');
+			
 			foreach ($Tab as &$u)
 			{
 				$TValideur[$u->id] = $u;
@@ -262,8 +273,9 @@ class TMissionOrder extends TObjetStd
 		$this->withChild = false;
 		
 		$TUser = $this->getUserFromMission();
+		
 		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser);
-
+		
 		$from = $this->getFirstMailFromUser($TUser);
 		$to = $this->concatMailFromUser($TValideur);
 		$addr_cc ='';// $this->concatMailFromUser($TUser);
@@ -425,15 +437,9 @@ class TMissionOrder extends TObjetStd
 		{
 			// Si on est chaud pour valider ("approuver") l'objet, il faut maintenant s'assurer qu'il ne reste pas des valideurs de niveau supérieur
 			
-			$TGroupId = array();
-			// Récupération des groupes des utilisateurs à valider pour les croiser avec ceux des valideurs
-			foreach ($TUser as $u)
-			{
-				if (empty($TGroupId)) $TGroupId = TRH_valideur_object::getTGroupIdForUser($u->id);
-				else $TGroupId = array_merge($TGroupId, TRH_valideur_object::getTGroupIdForUser($u->id));
-			}
+		
 			
-			$TGroupId = array_unique($TGroupId);
+			$TGroupId = array($this->fk_usergroup);
 			
 			// Je veux savoir s'il y a des valideurs pour l'un des groupes de notre utilisateur validé
 			$sql = 'SELECT vg.fk_user FROM '.MAIN_DB_PREFIX.'rh_valideur_groupe vg WHERE vg.fk_usergroup IN ('.implode(',', $TGroupId).')';

@@ -94,7 +94,7 @@ function getProjectView($mode='view', $fk_project=0, $TUser=array())
 			$count_user_project_common = array();
 			foreach ($TUser as $user)
 			{// Pour chaque user on récupère ses projets pour lesquels il est contact
-				if (!empty($user->fk_user))
+				if (!empty($user->fk_user) && $user->element != 'user')
 					$user->id = $user->fk_user; // Si Tobjetuserordermission user id contenu dans fk user sinon c'est directement un objet user
 				$sql = "SELECT DISTINCT element_id FROM ".MAIN_DB_PREFIX.'element_contact ec WHERE fk_socpeople='.$user->id.' AND fk_c_type_contact IN (160,161)';
 				$resql = $db->query($sql);
@@ -162,10 +162,12 @@ function getUsersView(&$TMissionOrderUser, &$form, $mode='view')
 	{
 		$TUser = getAllUserNameById();
 		$TSelectedUser = array();
+		
 		foreach ($TMissionOrderUser as $missionOrderUser)
 		{
-			$TSelectedUser[] = $missionOrderUser->fk_user;
 			if($missionOrderUser->element == 'user')$TSelectedUser[]=$missionOrderUser->id;
+			else $TSelectedUser[] = $missionOrderUser->fk_user;
+			
 		}
 		
 		//if(empty($TSelectedUser))$TSelectedUser=array($user->id);
@@ -208,7 +210,7 @@ function getUsergroupView($mode='view', $fk_usergroup=0,$TUser=array())
 				
 
 				$group = new UserGroup($db);
-				if(!empty($user->fk_user))$user->id = $user->fk_user;//Si on a un objet Tmissionorderuser et pas un objet user
+				if(!empty($user->fk_user)&& $user->element!='user')$user->id = $user->fk_user;//Si on a un objet Tmissionorderuser et pas un objet user
 				$listgroup = $group->listGroupsForUser($user->id);
 				if (!empty($listgroup))
 				{
