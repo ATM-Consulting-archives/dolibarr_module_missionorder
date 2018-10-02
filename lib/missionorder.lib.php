@@ -80,19 +80,58 @@ function mission_order_prepare_head(TMissionOrder $object)
 	return $head;
 }
 
-function getProjectView($mode='view', $fk_project=0)
+function getProjectView($mode='view', $fk_project=0, $TUser=array())
 {
 	global $db,$langs,$conf;
 	
 	if ($mode == 'edit')
 	{
 		require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
-	
-		$formproject = new FormProjets($db);
-		ob_start();
-		$formproject->select_projects(-1, $fk_project, 'fk_project', 16, 0, 1, $conf->global->PROJECT_HIDE_UNSELECTABLES);
-		$htmlProject = ob_get_clean();
 		
+		$TProjects = array();
+		if (!empty($TUser))
+		{
+			$count_user_project_common = array();
+			foreach ($TUser as $user)
+			{// Pour chaque user on récupère ses projets pour lesquels il est contact
+				if (!empty($user->fk_user) && $user->element != 'user')
+					$user->id = $user->fk_user; // Si Tobjetuserordermission user id contenu dans fk user sinon c'est directement un objet user
+				$sql = "SELECT DISTINCT element_id FROM ".MAIN_DB_PREFIX.'element_contact ec WHERE fk_socpeople='.$user->id.' AND fk_c_type_contact IN (160,161)';
+				$resql = $db->query($sql);
+				if (!empty($resql))
+				{
+					while ($obj = $db->fetch_object($resql))
+					{
+						$proj = new Project($db);
+						$proj->fetch($obj->element_id);
+						if ($proj->statut != 2)
+						{// On récupère les projets qui ne sont pas cloturés
+							if (!empty($TProjects[$proj->id]))
+							{
+								$count_user_project_common[$proj->id] ++;
+								if (empty($fk_project) && ($count_user_project_common[$proj->id] == count($TUser)))
+									$fk_project = $proj->id; // Si un projet en commun on le préselectionne
+							}else
+							{ // On peuple le select
+								$TProjects[$proj->id] = $proj->ref;
+								$count_user_project_common[$proj->id] = 1;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (count($TProjects) == 1)
+		{// Si un seul projet on le préselectionne
+			reset($TProjects);
+			$fk_project = key($TProjects);
+		}
+		$form = new Form($db);
+		ob_start();
+		print $form->selectarray('fk_project', $TProjects, $fk_project, 1, 0, 0, '', 0, 0, 0, '', 'minwidth100');
+		$htmlProject = ob_get_clean();
+
 		return $htmlProject;
 	}
 	elseif ($fk_project > 0) // mode view mais uniquement si le fetch d'un projet en vos la peine
@@ -115,7 +154,7 @@ function getProjectView($mode='view', $fk_project=0)
 
 function getUsersView(&$TMissionOrderUser, &$form, $mode='view')
 {
-	global $db,$langs;
+	global $db,$langs,$user;
 	
 	$res = '';
 	
@@ -123,11 +162,15 @@ function getUsersView(&$TMissionOrderUser, &$form, $mode='view')
 	{
 		$TUser = getAllUserNameById();
 		$TSelectedUser = array();
+		
 		foreach ($TMissionOrderUser as $missionOrderUser)
 		{
-			$TSelectedUser[] = $missionOrderUser->fk_user;
+			if($missionOrderUser->element == 'user')$TSelectedUser[]=$missionOrderUser->id;
+			else $TSelectedUser[] = $missionOrderUser->fk_user;
+			
 		}
 		
+		//if(empty($TSelectedUser))$TSelectedUser=array($user->id);
 		$res = $form->multiselectarray('TUser', $TUser, $TSelectedUser, 0, 0, '', 0, '95%', '', '');
 	}
 	elseif (!empty($TMissionOrderUser))
@@ -147,6 +190,81 @@ function getUsersView(&$TMissionOrderUser, &$form, $mode='view')
 	}
 	
 	return $res;
+}
+
+function getUsergroupView($mode='view', $fk_usergroup=0,$TUser=array())
+{
+	global $db,$langs,$conf, $user;
+	
+	if ($mode == 'edit')
+	{
+		require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
+		dol_include_once('/user/class/usergroup.class.php');
+
+		$viewGroup = array();
+		if (!empty($TUser))
+		{
+			$count_user_usergrp_common = array();
+			foreach ($TUser as $user)//Pour chaque user récupérer ses groupes
+			{
+				
+
+				$group = new UserGroup($db);
+				if(!empty($user->fk_user)&& $user->element!='user')$user->id = $user->fk_user;//Si on a un objet Tmissionorderuser et pas un objet user
+				$listgroup = $group->listGroupsForUser($user->id);
+				if (!empty($listgroup))
+				{
+					
+					foreach ($listgroup as $grpid => $grp)
+					{
+						
+						if (!empty($viewGroup[$grpid]))
+						{
+							$count_user_usergrp_common[$grpid] ++;
+							
+							if (empty($fk_usergroup) && ($count_user_usergrp_common[$grpid] == count($TUser))){//Si  on a un groupe en commun
+								$fk_usergroup = $grpid;
+								
+							}
+						}else
+						{//On peuple le select
+							$viewGroup[$grpid] = $grp->nom;
+							$count_user_usergrp_common[$grpid] = 1;
+						}
+					}
+				}
+			}
+		}
+
+		
+		if(count($viewGroup) == 1){//Si on a un seul groupe
+			reset($viewGroup);
+			$fk_usergroup = key($viewGroup);
+		}
+		
+		$form = new Form($db);
+		ob_start();
+		print $form->selectarray('fk_usergroup',$viewGroup, $fk_usergroup,1,0,0,'',0,0,0,'','minwidth100');
+		$htmlUsergroup = ob_get_clean();
+		
+		return $htmlUsergroup;
+	}
+	elseif ($fk_usergroup > 0) // mode view mais uniquement si le fetch d'un projet en vos la peine
+	{
+		dol_include_once('/user/class/usergroup.class.php');
+		
+		$group = new UserGroup($db);
+		if ($group->fetch($fk_usergroup) > 0)
+		{
+			return $group->getNomUrl(1, '', 1);
+		}
+		else
+		{
+			setEventMessages($langs->trans('warning_fk_group_fetch_fail', $fk_usergroup), array(), 'warnings');
+		}
+	}
+	
+	return '';
 }
 
 function getAllUserNameById()

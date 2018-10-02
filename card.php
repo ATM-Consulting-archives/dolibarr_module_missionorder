@@ -5,6 +5,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 dol_include_once('/missionorder/class/missionorder.class.php');
 dol_include_once('/missionorder/lib/missionorder.lib.php');
+dol_include_once('/projet/class/project.class.php');
 if (!empty($conf->valideur->enabled)) dol_include_once('/valideur/class/valideur.class.php');
 
 if (empty($user->rights->missionorder->read)) accessforbidden();
@@ -16,7 +17,6 @@ $action = GETPOST('action');
 $id = GETPOST('id', 'int');
 $ref = GETPOST('ref');
 $mode = GETPOST('mode');
-
 if (empty($mode)) $mode = 'view';
 if ($action == 'create' || $action == 'edit') $mode = 'edit';
 
@@ -38,12 +38,12 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 if (empty($reshook))
 {
 	$error = 0;
+	
 	switch ($action) {
 		case 'save':
 			$PDOdb->beginTransaction();
 			
 			$missionorder->set_values($_REQUEST); // Set standard attributes
-			
 			$missionorder->date_start = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
 			$missionorder->date_end = dol_mktime(GETPOST('endhour'), GETPOST('endmin'), 0, GETPOST('endmonth'), GETPOST('endday'), GETPOST('endyear'));
 			
@@ -66,10 +66,10 @@ if (empty($reshook))
 				setEventMessages($langs->trans('warning_no_user_linked'), array(), 'warnings');
 			}
 			
-			if (empty($missionorder->fk_project))
+			if (empty($missionorder->fk_usergroup))
 			{
 				$error++;
-				setEventMessages($langs->trans('warning_no_project_selected'), array(), 'warnings');
+				setEventMessages($langs->trans('warning_no_usergroup_selected'), array(), 'warnings');
 			}
 			
 			if ($error)
@@ -150,7 +150,7 @@ if (empty($reshook))
 				$ndfp->dates = $missionorder->date_start;
 				$ndfp->datee = $missionorder->date_end;
 				$ndfp->type = 'NORMAL'; // ou FORMATION
-				$ndfp->fk_project = $missionorder->fk_project;
+				$ndfp->fk_project = ($missionorder->fk_project>0)?$missionorder->fk_project:0;
 				$ndfp->description = $missionorder->label;
 				
 				$ndfp->fk_user = $user->id;
@@ -210,9 +210,12 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	$formconfirm = getFormConfirm($PDOdb, $form, $missionorder, $action);
 	if (!empty($formconfirm)) echo $formconfirm;
+
+	if(empty($missionorder->ref))$missionorder->TMissionOrderUser = array($user); // Si on est à la création on prérempli le select user avec le user createur
 	
-	$htmlProject = getProjectView($mode, $missionorder->fk_project);
+	$htmlProject = getProjectView($mode, $missionorder->fk_project,$missionorder->TMissionOrderUser);
 	$htmlUsers = getUsersView($missionorder->TMissionOrderUser, $form, $mode);
+	$htmlUsergroup = getUsergroupView($mode, $missionorder->fk_usergroup,$missionorder->TMissionOrderUser);
 	
 	$htmlDateStart = getDateView($form, $missionorder->date_start, $mode, 'start');
 	$htmlDateEnd = getDateView($form, $missionorder->date_end, $mode, 'end');
@@ -227,6 +230,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	if ($mode == 'edit') echo $formcore->begin_form($_SERVER['PHP_SELF'], 'form_mission_order');
 	
 	$TUsersGroup = $missionorder->getUsersGroup(1);
+	
 	$is_valideur = !empty($conf->valideur->enabled) ? TRH_valideur_groupe::isValideur($PDOdb, $user->id, $TUsersGroup, false, 'missionOrder') : false;
 	$can_create_ndfp = !empty($conf->ndfp->enabled) && $user->rights->ndfp->myactions->create && ($missionorder->status == TMissionOrder::STATUS_ACCEPTED || (!empty($conf->global->MISSION_ORDER_ALLOW_CREATE_NDFP_FROM_TO_APPROVE) && $missionorder->status == TMissionOrder::STATUS_TO_APPROVE) );
 	
@@ -260,6 +264,7 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 				,'showCarriage' => $htmlCarriage
 				,'showNote' => $formcore->zonetexte('', 'note', $missionorder->note, 80, 8)
 				,'showStatus' => $missionorder->getLibStatut(1)
+				,'showUsergroup' => $htmlUsergroup
 			)
 			,'langs' => $langs
 			,'form' => $form
@@ -280,5 +285,48 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 	
 	if ($mode == 'view') $somethingshown = $form->showLinkedObjectBlock($missionorder->generic);
 	
+	?>
+<!-- MAJ EN TEMPS REEL DES SELECT EN FCT DES USERS SELECTED -->
+		<script type='text/javascript'>
+			$(document).ready(function(){
+				$('#TUser').on('change',function (data) {
+					$.ajax({
+						url : "./script/interface.php"
+						,data: {
+							json:1
+							,get : 'project'
+							,TUserId : data.val
+
+						}
+						,dataType: 'json'
+					})
+					.done(function (result) {
+						$("#fk_project").replaceWith(result);
+						
+					}); 
+					
+					$.ajax({
+						url : "./script/interface.php"
+						,data: {
+							json:1
+							,get : 'usergroup'
+							,TUserId : data.val
+
+						}
+						,dataType: 'json'
+					})
+					.done(function (result) {
+						$("#fk_usergroup").replaceWith(result);
+						
+					}); 
+				});
+				
+			});
+		
+
+		</script>
+				
+	<?php
+
 	llxFooter();
 }

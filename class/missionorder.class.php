@@ -53,7 +53,7 @@ class TMissionOrder extends TObjetStd
 		$this->add_champs('label,location,other_reason,other_carriage', array('type' => 'string'));
 		$this->add_champs('status', array('type' => 'integer'));
 		
-		$this->add_champs('fk_project,entity,fk_user_author,fk_user_valid', array('type' => 'integer', 'index' => true));
+		$this->add_champs('fk_project,entity,fk_user_author,fk_user_valid,fk_usergroup', array('type' => 'integer', 'index' => true));
 		$this->add_champs('date_start,date_end,date_valid,date_refuse,date_accept', array('type' => 'date'));
 		$this->add_champs('note', array('type' => 'text'));
 		$this->add_champs('level', array('type' => 'integer', 'default' => 1));
@@ -183,6 +183,16 @@ class TMissionOrder extends TObjetStd
 		return $res;
 	}
 	
+	function cloneObject(&$db)
+	{
+		$this->is_clone = true;
+		parent::start();
+		parent::clearChildren();
+		
+		$this->level=1;
+		return $this->save($db);
+	}
+	
 	private function getTValideurFromTUser(&$PDOdb, &$TUser)
 	{
 		$TValideur = array();
@@ -190,6 +200,7 @@ class TMissionOrder extends TObjetStd
 		{
 			$this->fk_user = $user->id; // Trick pour le commit 424cf10a989 du module valideur !!!
 			$Tab = TRH_valideur_groupe::getUserValideur($PDOdb, $user, $this, 'missionOrder', 'object');
+			
 			foreach ($Tab as &$u)
 			{
 				$TValideur[$u->id] = $u;
@@ -260,8 +271,9 @@ class TMissionOrder extends TObjetStd
 	{
 		$this->status = self::STATUS_TO_APPROVE;
 		$this->withChild = false;
-
+		
 		$TUser = $this->getUserFromMission();
+		
 		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser);
 		
 		$from = $this->getFirstMailFromUser($TUser);
@@ -425,15 +437,9 @@ class TMissionOrder extends TObjetStd
 		{
 			// Si on est chaud pour valider ("approuver") l'objet, il faut maintenant s'assurer qu'il ne reste pas des valideurs de niveau supérieur
 			
-			$TGroupId = array();
-			// Récupération des groupes des utilisateurs à valider pour les croiser avec ceux des valideurs
-			foreach ($TUser as $u)
-			{
-				if (empty($TGroupId)) $TGroupId = TRH_valideur_object::getTGroupIdForUser($u->id);
-				else $TGroupId = array_merge($TGroupId, TRH_valideur_object::getTGroupIdForUser($u->id));
-			}
+		
 			
-			$TGroupId = array_unique($TGroupId);
+			$TGroupId = array($this->fk_usergroup);
 			
 			// Je veux savoir s'il y a des valideurs pour l'un des groupes de notre utilisateur validé
 			$sql = 'SELECT vg.fk_user FROM '.MAIN_DB_PREFIX.'rh_valideur_groupe vg WHERE vg.fk_usergroup IN ('.implode(',', $TGroupId).')';
@@ -533,6 +539,9 @@ class TMissionOrder extends TObjetStd
 	public function getUsersGroup($as_array=0)
 	{
 		global $db;
+		
+		if(!empty($this->fk_usergroup))return array($this->fk_usergroup);
+		
 		
 		require_once DOL_DOCUMENT_ROOT.'/user/class/usergroup.class.php';
 		
@@ -636,9 +645,15 @@ class TMissionOrder extends TObjetStd
 		if ($this->status != TMissionOrder::STATUS_TO_APPROVE) return false;
 		
 		$TGroupUser = $this->getUsersGroup(1);
+		
+		$onMission=false;
+		foreach($this->TUser as $userMission){ // On check sur tous les users s'il est dans l'ordre de mission
+			if($userMission->id == $user->id)$onMission=true; 
+		}
+		
 		if (!TRH_valideur_groupe::isValideur($PDOdb, $user->id, $TGroupUser, false, 'missionOrder')) return false;
 		elseif (TRH_valideur_object::alreadyAcceptedByThisUser($PDOdb, $this->entity, $user->id, $this->getId(), 'missionOrder')) return false;
-		elseif ($this->fk_user == $user->id && !TRH_valideur_groupe::validHimSelf($user, $this, 'missionOrder')) return false;
+		elseif ($onMission && !TRH_valideur_groupe::validHimSelf($user, $this, 'missionOrder')) return false;
 		
 		$TLevelValidation = TRH_valideur_groupe::getTLevelValidation($PDOdb, $user, 'missionOrder', $TGroupUser);
 		$intersect = array_intersect($TGroupUser, array_keys($TLevelValidation));

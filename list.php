@@ -2,6 +2,7 @@
 
 require 'config.php';
 dol_include_once('/missionorder/class/missionorder.class.php');
+dol_include_once('/projet/class/project.class.php');
 if (!empty($conf->valideur->enabled)) dol_include_once ('/valideur/class/valideur.class.php');
 
 if(empty($user->rights->missionorder->read)) accessforbidden();
@@ -101,7 +102,6 @@ function _list()
 	}
 	
 	$sql.= ' GROUP BY mo.rowid';
-
 	$TFiltre = GETPOST('TListTBS', 'array');
 	if (empty($TFiltre['list_llx_mission_order'])) $sql.=' ORDER BY mo.rowid DESC';
 	
@@ -201,11 +201,12 @@ function _list()
 function _getProjectNomUrl($fk_project)
 {
 	global $db;
-	
-	$project = new Project($db);
-	$project->fetch($fk_project);
-	
-	return $project->getNomUrl(1, '', 1);
+	if($fk_project > 0){
+		$project = new Project($db);
+		$project->fetch($fk_project);
+
+		return $project->getNomUrl(1, '', 1);
+	}
 }
 
 function _formatDate($date)
