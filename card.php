@@ -65,8 +65,7 @@ if (empty($reshook))
 				$error++;
 				setEventMessages($langs->trans('warning_no_user_linked'), array(), 'warnings');
 			}
-			
-			if (empty($missionorder->fk_usergroup))
+			if (empty($missionorder->fk_usergroup) || $missionorder->fk_usergroup == -1)
 			{
 				$error++;
 				setEventMessages($langs->trans('warning_no_usergroup_selected'), array(), 'warnings');
