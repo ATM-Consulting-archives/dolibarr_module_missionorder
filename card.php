@@ -289,6 +289,15 @@ function _fiche(&$PDOdb, &$missionorder, $mode='view', $action)
 		<script type='text/javascript'>
 			$(document).ready(function(){
 				$('#TUser').on('change',function (data) {
+					
+					if(data.val === undefined){
+						
+						data.val = [];
+						$(this).find(':selected').each(function(){
+							data.val.push( $(this).val()); 
+						});
+					}
+					
 					$.ajax({
 						url : "./script/interface.php"
 						,data: {
