@@ -269,6 +269,7 @@ class TMissionOrder extends TObjetStd
 	
 	public function setToApprove(&$PDOdb)
 	{
+		global $user, $conf;
 		$this->status = self::STATUS_TO_APPROVE;
 		$this->withChild = false;
 		
@@ -276,19 +277,29 @@ class TMissionOrder extends TObjetStd
 		
 		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser);
 		
-		$from = $this->getFirstMailFromUser($TUser);
-		$to = $this->concatMailFromUser($TValideur);
-		$addr_cc ='';// $this->concatMailFromUser($TUser);
-		//var_dump($TValideur);exit;
-		if(empty($to)){
-			setEventMessages('Pas de valideur pour ce groupe', array(), 'errors');
-			return -1;
+		if (count($TUser) == 1 && $TUser[0]->id == $user->id && !empty($TValideur[$user->id]) && TRH_valideur_groupe::isStrong($PDOdb, $user->id, 'missionOrder', $conf->entity))
+		{
+			return $this->addApprobation($PDOdb);
+			
 		}
-		$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php', $addr_cc);
-		
-		if ($res <= 0) return -1;
-		
-		return parent::save($PDOdb);
+		else
+		{
+			$from = $this->getFirstMailFromUser($TUser);
+			$to = $this->concatMailFromUser($TValideur);
+			$addr_cc = ''; // $this->concatMailFromUser($TUser);
+			//var_dump($TValideur);exit;
+			if (empty($to))
+			{
+				setEventMessages('Pas de valideur pour ce groupe', array(), 'errors');
+				return -1;
+			}
+			$res = $this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php', $addr_cc);
+
+			if ($res <= 0)
+				return -1;
+
+			return parent::save($PDOdb);
+		}
 	}
 	
 	public function setRefused(&$PDOdb)
@@ -422,7 +433,6 @@ class TMissionOrder extends TObjetStd
 				$this->level++; // j'incrémente le level car tout le monde a validé sur ce même niveau ("faible")
 			}
 		}
-		
 		
 		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser); // TODO Check nextValideur
 //		var_dump($TValideur);exit;
