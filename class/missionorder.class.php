@@ -608,7 +608,7 @@ class TMissionOrder extends TObjetStd
 		$langs->load("missionorder@missionorder");
 
 		if ($status==self::STATUS_DRAFT) { $statustrans='statut0'; $keytrans='MissionOrderStatusDraft'; $shortkeytrans='Draft'; }
-		if ($status==self::STATUS_VALIDATED) { $statustrans='statut1'; $keytrans='MissionOrderStatusValidated'; $shortkeytrans='Validate'; }
+		if ($status==self::STATUS_VALIDATED) { $statustrans='statut1'; $keytrans='MissionOrderStatusValidated'; $shortkeytrans='Validated'; }
 		if ($status==self::STATUS_TO_APPROVE) { $statustrans='statut3'; $keytrans='MissionOrderStatusToApprove'; $shortkeytrans='ToApprove'; }
 		if ($status==self::STATUS_REFUSED) { $statustrans='statut5'; $keytrans='MissionOrderStatusRefused'; $shortkeytrans='Refused'; }
 		if ($status==self::STATUS_ACCEPTED) { $statustrans='statut6'; $keytrans='MissionOrderStatusAccepted'; $shortkeytrans='Accepted'; }
