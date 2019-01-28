@@ -434,14 +434,6 @@ class TMissionOrder extends TObjetStd
 			}
 		}
 		
-		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser); // TODO Check nextValideur
-//		var_dump($TValideur);exit;
-		if (!empty($TValideur))
-		{
-			$to = $this->concatMailFromUser($TValideur);
-			// Mail du valideur vers le/les prochains valideurs
-			$this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php');
-		}
 		
 		if ($canValidate && !empty($conf->global->VALIDEUR_HIERARCHIE_ENABLED))
 		{
@@ -459,7 +451,15 @@ class TMissionOrder extends TObjetStd
 			$resql = $db->query($sql);
 			if ($resql)
 			{
-				if ($db->num_rows($resql) > 0) $canValidate = false;
+				if ($db->num_rows($resql) > 0){
+					$canValidate = false;
+					
+					while($obj = $db->fetch_object($resql)){
+						if($obj->fk_user == $user->id && TRH_valideur_groupe::isStrong($PDOdb, $user->id, 'missionOrder', $conf->entity)){ // Pour le cas où l'utilisateur est valideur de deux niveaux
+							$this->level++;
+						}
+					}
+				}
 				else $canValidate = true; // affectation inutile mais je préfère l'expliciter pour le moment
 			}
 			else
@@ -467,6 +467,15 @@ class TMissionOrder extends TObjetStd
 				dol_print_error($db);
 				exit;
 			}
+		}
+		
+		$TValideur = $this->getTValideurFromTUser($PDOdb, $TUser); // TODO Check nextValideur
+//		var_dump($TValideur);exit;
+		if (!empty($TValideur))
+		{
+			$to = $this->concatMailFromUser($TValideur);
+			// Mail du valideur vers le/les prochains valideurs
+			$this->sendMail($TUser, $from, $to, 'MissionOrder_MailSubjectToApprove', '/missionorder/tpl/mail.mission.toapprove.tpl.php');
 		}
 		
 		// Valideur fort ou tout les faibles ont acceptés sur le niveau courrant de l'objet
