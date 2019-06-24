@@ -229,7 +229,7 @@ function _getUsersLink($fk_user_string)
 	$res = '';
 	foreach ($Tab as $fk_user)
 	{
-		if (!empty($TUserLink[$fk_user])) $u = &$TUserLink[$fk_user];
+		if (!empty($TUserLink[$fk_user])) $u = $TUserLink[$fk_user];
 		else
 		{
 			$u = new User($db);
